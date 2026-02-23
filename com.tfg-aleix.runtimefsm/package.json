@@ -1,0 +1,21 @@
+{
+  "name": "com.tfg-aleix.runtimefsm",
+  "version": "1.0.0",
+  "displayName": "Runtime FSM Framework",
+  "description": "Data-driven modular FSM runtime for Unity.",
+  "unity": "6000.0",
+  "author": {
+    "name": "Aleix Muñoz",
+    "email": "aleixon.f.rodriguez@gmail.com"
+  },
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  },
+  "samples": [
+    {
+      "displayName": "Basic Example",
+      "description": "Basic usage example of the FSM",
+      "path": "Samples~/Example"
+    }
+  ]
+}
