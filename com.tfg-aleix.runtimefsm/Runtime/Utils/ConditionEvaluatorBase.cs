@@ -2,6 +2,7 @@ using System;
 using RuntimeFSM.Data;
 using RuntimeFSM.Interfaces;
 using RuntimeFSM.Utilities;
+using UnityEngine;
 
 namespace RuntimeFSM.Utils
 {
