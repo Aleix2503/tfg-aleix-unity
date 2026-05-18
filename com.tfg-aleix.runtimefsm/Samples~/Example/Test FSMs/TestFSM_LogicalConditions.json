@@ -1,0 +1,117 @@
+{
+  "version": "1.0",
+  "name": "TestFSM_LogicalConditions",
+  "initial_state": "Idle",
+  "states": [
+    {
+      "id": "Idle",
+      "is_entry_point": true,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Idle"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "Alert",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Alert"
+          }
+        },
+        {
+          "action": "PlaySound",
+          "params": {
+            "soundName": "alert_sound"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "Attack",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Attack"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    }
+  ],
+  "transitions": [
+    {
+      "from": "Idle",
+      "to": "Alert",
+      "condition": {
+        "type": "logical",
+        "logicalOperator": "AND",
+        "conditions": [
+          {
+            "type": "simple",
+            "name": "distanceToPlayer",
+            "operator": "<",
+            "value": "15"
+          },
+          {
+            "type": "simple",
+            "name": "health",
+            "operator": ">",
+            "value": "30"
+          }
+        ]
+      }
+    },
+    {
+      "from": "Alert",
+      "to": "Attack",
+      "condition": {
+        "type": "logical",
+        "logicalOperator": "AND",
+        "conditions": [
+          {
+            "type": "simple",
+            "name": "distanceToPlayer",
+            "operator": "<",
+            "value": "5"
+          },
+          {
+            "type": "simple",
+            "name": "isAlerted",
+            "operator": "==",
+            "value": "true"
+          }
+        ]
+      }
+    },
+    {
+      "from": "Alert",
+      "to": "Idle",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": ">=",
+        "value": "15"
+      }
+    }
+  ]
+}

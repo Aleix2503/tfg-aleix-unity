@@ -1,0 +1,132 @@
+{
+  "version": "1.0",
+  "name": "TestFSM_AnyState",
+  "initial_state": "Idle",
+  "states": [
+    {
+      "id": "Idle",
+      "is_entry_point": true,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Idle"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "Walking",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Walk"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "Running",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Run"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "Dead",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Death"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "ANY_STATE",
+      "is_entry_point": false,
+      "is_any_state": true,
+      "is_global_state": false,
+      "enter": [],
+      "tick": [],
+      "exit": []
+    }
+  ],
+  "transitions": [
+    {
+      "from": "Idle",
+      "to": "Walking",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": "<",
+        "value": "15"
+      }
+    },
+    {
+      "from": "Walking",
+      "to": "Running",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": "<",
+        "value": "5"
+      }
+    },
+    {
+      "from": "Walking",
+      "to": "Idle",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": ">=",
+        "value": "15"
+      }
+    },
+    {
+      "from": "Running",
+      "to": "Walking",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": ">=",
+        "value": "5"
+      }
+    },
+    {
+      "from": "ANY_STATE",
+      "to": "Dead",
+      "condition": {
+        "type": "simple",
+        "name": "health",
+        "operator": "<=",
+        "value": "0"
+      }
+    }
+  ]
+}

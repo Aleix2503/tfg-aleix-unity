@@ -1,57 +1,166 @@
 using UnityEngine;
-using RuntimeFSM.Interfaces;
+using RuntimeFSM.Data;
+using RuntimeFSM.Utils;
+using RuntimeFSM.Utilities;
 
 namespace RuntimeFSM.Examples
 {
+    /// <summary>
+    /// Ejemplo de evaluador de condiciones que implementa la lógica de negocio.
+    /// Hereda de ConditionEvaluatorBase que maneja automáticamente:
+    /// - Condiciones simples (delegadas a EvaluateSimpleCondition)
+    /// - Condiciones lógicas recursivas (AND, OR, NOT)
+    /// </summary>
     public class ExampleConditionEvaluator : MonoBehaviour, IConditionEvaluator
     {
         [Header("Runtime Variables")]
-        public float distanceToPlayer;
+        [SerializeField] private float distanceToPlayer = 10f;
+        [SerializeField] private bool isAlerted = false;
+        [SerializeField] private int health = 100;
 
-        public bool Evaluate(string type, string name, string op, string value)
+        private ConditionEvaluatorImpl _evaluator;
+
+        private void OnEnable()
         {
-            if (type == "VARIABLE")
-            {
-                return EvaluateVariable(name, op, value);
-            }
-
-            Debug.LogWarning($"Unknown condition type: {type}");
-            return false;
+            _evaluator = new ConditionEvaluatorImpl(this);
         }
 
-        private bool EvaluateVariable(string name, string op, string value)
+        public bool Evaluate(ConditionDefinition condition)
         {
-            float targetValue;
+            return _evaluator.Evaluate(condition);
+        }
 
-            if (!float.TryParse(value, out targetValue))
-                return false;
+        public bool EvaluateSimple(
+            string conditionType,
+            string conditionName,
+            string conditionOperator,
+            string value)
+        {
+            return _evaluator.EvaluateSimple(conditionType, conditionName, conditionOperator, value);
+        }
 
-            float currentValue = GetVariableValue(name);
+        /// <summary>
+        /// Implementación interna que hereda de ConditionEvaluatorBase
+        /// </summary>
+        private class ConditionEvaluatorImpl : ConditionEvaluatorBase
+        {
+            private readonly ExampleConditionEvaluator _parent;
 
-            switch (op)
+            public ConditionEvaluatorImpl(ExampleConditionEvaluator parent)
             {
-                case "<": return currentValue < targetValue;
-                case ">": return currentValue > targetValue;
-                case "==": return Mathf.Approximately(currentValue, targetValue);
-                case "<=": return currentValue <= targetValue;
-                case ">=": return currentValue >= targetValue;
-                default:
-                    Debug.LogWarning($"Unknown operator: {op}");
+                _parent = parent;
+            }
+
+            /// <summary>
+            /// Implementa la lógica específica para evaluar condiciones simples
+            /// </summary>
+            protected override bool EvaluateSimpleCondition(ConditionDefinition condition)
+            {
+                // Parsear el operador
+                var operatorType = ConditionParser.ParseConditionOperator(condition.@operator);
+
+                // Obtener el valor actual de la variable
+                float currentValue = GetVariableValue(condition.name);
+
+                // Si el valor actual es string (para Contains/NotContains)
+                string stringValue = GetStringVariableValue(condition.name);
+
+                // Parsear el valor objetivo
+                if (!float.TryParse(condition.value, out float targetValue) && stringValue == null)
+                {
+                    Debug.LogWarning($"[ExampleConditionEvaluator] No se puede parsear valor: {condition.value}");
                     return false;
+                }
+
+                // Evaluar según el operador
+                switch (operatorType)
+                {
+                    case ConditionOperator.Equals:
+                        // Para valores numéricos
+                        if (!string.IsNullOrEmpty(stringValue))
+                            return stringValue == condition.value;
+                        return Mathf.Approximately(currentValue, targetValue);
+
+                    case ConditionOperator.NotEquals:
+                        if (!string.IsNullOrEmpty(stringValue))
+                            return stringValue != condition.value;
+                        return !Mathf.Approximately(currentValue, targetValue);
+
+                    case ConditionOperator.GreaterThan:
+                        return currentValue > targetValue;
+
+                    case ConditionOperator.GreaterThanOrEqual:
+                        return currentValue >= targetValue;
+
+                    case ConditionOperator.LessThan:
+                        return currentValue < targetValue;
+
+                    case ConditionOperator.LessThanOrEqual:
+                        return currentValue <= targetValue;
+
+                    case ConditionOperator.Contains:
+                        return !string.IsNullOrEmpty(stringValue) &&
+                               stringValue.Contains(condition.value);
+
+                    case ConditionOperator.NotContains:
+                        return string.IsNullOrEmpty(stringValue) ||
+                               !stringValue.Contains(condition.value);
+
+                    default:
+                        Debug.LogWarning($"[ExampleConditionEvaluator] Operador desconocido: {condition.@operator}");
+                        return false;
+                }
+            }
+
+            /// <summary>
+            /// Obtiene el valor numérico de una variable
+            /// </summary>
+            private float GetVariableValue(string variableName)
+            {
+                switch (variableName)
+                {
+                    case "distanceToPlayer":
+                        return _parent.distanceToPlayer;
+
+                    case "health":
+                        return _parent.health;
+
+                    default:
+                        Debug.LogWarning($"[ExampleConditionEvaluator] Variable numérica desconocida: {variableName}");
+                        return 0f;
+                }
+            }
+
+            /// <summary>
+            /// Obtiene el valor string de una variable
+            /// </summary>
+            private string GetStringVariableValue(string variableName)
+            {
+                switch (variableName)
+                {
+                    case "isAlerted":
+                        return _parent.isAlerted ? "true" : "false";
+
+                    default:
+                        return null;
+                }
             }
         }
 
-        private float GetVariableValue(string variableName)
+        // Métodos públicos para simular cambios en runtime (para testing)
+        public void SetDistanceToPlayer(float distance)
         {
-            switch (variableName)
-            {
-                case "distanceToPlayer":
-                    return distanceToPlayer;
+            distanceToPlayer = distance;
+        }
 
-                default:
-                    Debug.LogWarning($"Unknown variable: {variableName}");
-                    return 0f;
-            }
+        public void SetAlerted(bool alerted)
+        {
+            isAlerted = alerted;
+        }
+
+        public void SetHealth(int newHealth)
+        {
+            health = newHealth;
         }
     }
 }

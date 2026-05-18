@@ -1,0 +1,112 @@
+{
+  "version": "1.0",
+  "name": "TestFSM_GlobalState",
+  "initial_state": "Idle",
+  "states": [
+    {
+      "id": "Idle",
+      "is_entry_point": true,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Idle"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "Moving",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Walk"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "GlobalHealthSystem",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": true,
+      "enter": [
+        {
+          "action": "InitializeHealthSystem",
+          "params": {}
+        }
+      ],
+      "tick": [
+        {
+          "action": "UpdateHealthUI",
+          "params": {}
+        },
+        {
+          "action": "ApplyHealthRegen",
+          "params": {
+            "regenPerSecond": "0.5"
+          }
+        }
+      ],
+      "exit": [
+        {
+          "action": "ShutdownHealthSystem",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "GlobalAudioSystem",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": true,
+      "enter": [
+        {
+          "action": "InitializeAudioSystem",
+          "params": {}
+        }
+      ],
+      "tick": [
+        {
+          "action": "UpdateAmbientSound",
+          "params": {
+            "volume": "0.5"
+          }
+        }
+      ],
+      "exit": []
+    }
+  ],
+  "transitions": [
+    {
+      "from": "Idle",
+      "to": "Moving",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": "<",
+        "value": "10"
+      }
+    },
+    {
+      "from": "Moving",
+      "to": "Idle",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": ">=",
+        "value": "10"
+      }
+    }
+  ]
+}

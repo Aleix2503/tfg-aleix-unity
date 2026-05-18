@@ -1,11 +1,25 @@
+using RuntimeFSM.Data;
+
 namespace RuntimeFSM.Interfaces
 {
     /// <summary>
-    /// Eval鷄 condiciones definidas en el JSON.
+    /// Eval煤a condiciones definidas en el JSON.
+    /// Soporta:
+    /// - Condiciones simples (ej: variable > 5)
+    /// - Condiciones l贸gicas (AND, OR, NOT) con sub-condiciones anidadas
     /// </summary>
     public interface IConditionEvaluator
     {
-        bool Evaluate(
+        /// <summary>
+        /// Eval煤a una definici贸n de condici贸n completa (simple o l贸gica)
+        /// </summary>
+        bool Evaluate(ConditionDefinition condition);
+
+        /// <summary>
+        /// Eval煤a una condici贸n simple
+        /// (M茅todo legacy para compatibilidad)
+        /// </summary>
+        bool EvaluateSimple(
             string conditionType,
             string conditionName,
             string conditionOperator,

@@ -1,0 +1,247 @@
+{
+  "version": "1.0",
+  "name": "TestFSM_Complex",
+  "initial_state": "Patrol",
+  "states": [
+    {
+      "id": "Patrol",
+      "is_entry_point": true,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Patrol"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "Alert",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Alert"
+          }
+        },
+        {
+          "action": "PlaySound",
+          "params": {
+            "soundName": "alert"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "Chase",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Chase"
+          }
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "Attack",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Attack"
+          }
+        }
+      ],
+      "tick": [
+        {
+          "action": "DealDamage",
+          "params": {
+            "damageAmount": "10"
+          }
+        }
+      ],
+      "exit": []
+    },
+    {
+      "id": "Dead",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": false,
+      "enter": [
+        {
+          "action": "PlayAnimation",
+          "params": {
+            "animationName": "Death"
+          }
+        },
+        {
+          "action": "DropLoot",
+          "params": {}
+        }
+      ],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "ANY_STATE",
+      "is_entry_point": false,
+      "is_any_state": true,
+      "is_global_state": false,
+      "enter": [],
+      "tick": [],
+      "exit": []
+    },
+    {
+      "id": "GlobalHealthMonitor",
+      "is_entry_point": false,
+      "is_any_state": false,
+      "is_global_state": true,
+      "enter": [],
+      "tick": [
+        {
+          "action": "MonitorHealth",
+          "params": {}
+        }
+      ],
+      "exit": []
+    }
+  ],
+  "transitions": [
+    {
+      "from": "Patrol",
+      "to": "Alert",
+      "condition": {
+        "type": "logical",
+        "logicalOperator": "AND",
+        "conditions": [
+          {
+            "type": "simple",
+            "name": "distanceToPlayer",
+            "operator": "<",
+            "value": "20"
+          },
+          {
+            "type": "simple",
+            "name": "health",
+            "operator": ">",
+            "value": "50"
+          }
+        ]
+      }
+    },
+    {
+      "from": "Alert",
+      "to": "Chase",
+      "condition": {
+        "type": "logical",
+        "logicalOperator": "AND",
+        "conditions": [
+          {
+            "type": "simple",
+            "name": "distanceToPlayer",
+            "operator": "<",
+            "value": "15"
+          },
+          {
+            "type": "simple",
+            "name": "isAlerted",
+            "operator": "==",
+            "value": "true"
+          }
+        ]
+      }
+    },
+    {
+      "from": "Chase",
+      "to": "Attack",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": "<",
+        "value": "2"
+      }
+    },
+    {
+      "from": "Chase",
+      "to": "Alert",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": ">=",
+        "value": "15"
+      }
+    },
+    {
+      "from": "Alert",
+      "to": "Patrol",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": ">=",
+        "value": "20"
+      }
+    },
+    {
+      "from": "Attack",
+      "to": "Chase",
+      "condition": {
+        "type": "simple",
+        "name": "distanceToPlayer",
+        "operator": ">=",
+        "value": "2"
+      }
+    },
+    {
+      "from": "ANY_STATE",
+      "to": "Dead",
+      "condition": {
+        "type": "logical",
+        "logicalOperator": "OR",
+        "conditions": [
+          {
+            "type": "simple",
+            "name": "health",
+            "operator": "<=",
+            "value": "0"
+          },
+          {
+            "type": "logical",
+            "logicalOperator": "AND",
+            "conditions": [
+              {
+                "type": "simple",
+                "name": "health",
+                "operator": "<",
+                "value": "20"
+              },
+              {
+                "type": "simple",
+                "name": "distanceToPlayer",
+                "operator": ">",
+                "value": "30"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
