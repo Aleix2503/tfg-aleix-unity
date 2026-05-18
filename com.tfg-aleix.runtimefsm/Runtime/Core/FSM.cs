@@ -189,7 +189,7 @@ namespace RuntimeFSM.Core
                 if (EnableLogging)
                     Log($"Executing action: {action.action}");
 
-                _executor.Execute(action.action, action.GetParametersAsDictionary());
+                _actionExecutor.Execute(action.action, action.GetParametersAsDictionary());
             }
         }
 
