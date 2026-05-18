@@ -10,7 +10,7 @@ namespace RuntimeFSM.Utils
     /// Maneja automáticamente las condiciones lógicas (AND, OR, NOT) de forma recursiva.
     /// Los subclases solo necesitan implementar EvaluateSimpleCondition() para condiciones simples.
     /// </summary>
-    public abstract class ConditionEvaluatorBase : IConditionEvaluator
+    public abstract class ConditionEvaluatorBase : MonoBehaviour, IConditionEvaluator
     {
         /// <summary>
         /// Evalúa una definición de condición (simple o lógica)
