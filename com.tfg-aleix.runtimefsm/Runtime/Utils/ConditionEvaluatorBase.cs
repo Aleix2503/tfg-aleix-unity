@@ -16,24 +16,34 @@ namespace RuntimeFSM.Utils
         /// <summary>
         /// Evalúa una definición de condición (simple o lógica)
         /// Maneja la recursión automáticamente para condiciones lógicas
+        /// Incluye error handling robusto
         /// </summary>
         public bool Evaluate(ConditionDefinition condition)
         {
-            if (condition == null)
-                return true;
-
-            var conditionType = ConditionParser.ParseConditionType(condition.type);
-
-            switch (conditionType)
+            try
             {
-                case ConditionType.Simple:
-                    return EvaluateSimpleCondition(condition);
+                if (condition == null)
+                    return true;
 
-                case ConditionType.Logical:
-                    return EvaluateLogicalCondition(condition);
+                var conditionType = ConditionParser.ParseConditionType(condition.type);
 
-                default:
-                    return false;
+                switch (conditionType)
+                {
+                    case ConditionType.Simple:
+                        return EvaluateSimpleCondition(condition);
+
+                    case ConditionType.Logical:
+                        return EvaluateLogicalCondition(condition);
+
+                    default:
+                        ConditionEvaluatorErrorHandler.LogInvalidConditionStructure($"Tipo de condición desconocido: {condition.type}", gameObject);
+                        return false;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                ConditionEvaluatorErrorHandler.LogEvaluationException(condition?.name ?? "Unknown", ex, gameObject);
+                return false; // Fallar de forma segura
             }
         }
 
@@ -42,24 +52,36 @@ namespace RuntimeFSM.Utils
         /// </summary>
         private bool EvaluateLogicalCondition(ConditionDefinition condition)
         {
-            if (condition.conditions == null || condition.conditions.Count == 0)
-                return false;
-
-            var logicalOp = ConditionParser.ParseLogicalOperator(condition.logicalOperator);
-
-            switch (logicalOp)
+            try
             {
-                case LogicalOperator.And:
-                    return EvaluateAnd(condition.conditions);
-
-                case LogicalOperator.Or:
-                    return EvaluateOr(condition.conditions);
-
-                case LogicalOperator.Not:
-                    return EvaluateNot(condition.conditions);
-
-                default:
+                if (condition.conditions == null || condition.conditions.Count == 0)
+                {
+                    ConditionEvaluatorErrorHandler.LogInvalidConditionStructure("Condición lógica sin sub-condiciones", gameObject);
                     return false;
+                }
+
+                var logicalOp = ConditionParser.ParseLogicalOperator(condition.logicalOperator);
+
+                switch (logicalOp)
+                {
+                    case LogicalOperator.And:
+                        return EvaluateAnd(condition.conditions);
+
+                    case LogicalOperator.Or:
+                        return EvaluateOr(condition.conditions);
+
+                    case LogicalOperator.Not:
+                        return EvaluateNot(condition.conditions);
+
+                    default:
+                        ConditionEvaluatorErrorHandler.LogInvalidConditionStructure($"Operador lógico desconocido: {condition.logicalOperator}", gameObject);
+                        return false;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                ConditionEvaluatorErrorHandler.LogEvaluationException("LogicalCondition", ex, gameObject);
+                return false;
             }
         }
 
@@ -95,7 +117,10 @@ namespace RuntimeFSM.Utils
         private bool EvaluateNot(System.Collections.Generic.List<ConditionDefinition> conditions)
         {
             if (conditions.Count != 1)
+            {
+                ConditionEvaluatorErrorHandler.LogInvalidConditionStructure($"NOT debe tener exactamente 1 sub-condición, pero tiene {conditions.Count}", gameObject);
                 return false;
+            }
 
             return !Evaluate(conditions[0]);
         }

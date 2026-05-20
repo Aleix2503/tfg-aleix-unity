@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using RuntimeFSM.Interfaces;
+using RuntimeFSM.Utils;
 
 namespace RuntimeFSM.Implementations
 {
@@ -31,23 +32,50 @@ namespace RuntimeFSM.Implementations
     {
         /// <summary>
         /// Ejecuta una acción llamando automáticamente al método On[ActionName]
-        /// Usa reflection para encontrar el método dinámicamente
+        /// Usa reflection para encontrar el método dinámicamente.
+        /// Incluye manejo robusto de errores y logging detallado.
         /// </summary>
         public virtual void Execute(string actionName, Dictionary<string, string> parameters)
         {
-            string methodName = $"On{actionName}";
-            var method = GetType().GetMethod(
-                methodName,
-                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.IgnoreCase
-            );
+            try
+            {
+                // Validar parámetros de entrada
+                if (string.IsNullOrEmpty(actionName))
+                {
+                    Debug.LogError("[DefaultActionExecutor] Action name no puede estar vacío", gameObject);
+                    return;
+                }
 
-            if (method != null)
-            {
-                method.Invoke(this, new object[] { parameters });
+                string methodName = $"On{actionName}";
+                var method = GetType().GetMethod(
+                    methodName,
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.IgnoreCase
+                );
+
+                if (method == null)
+                {
+                    ActionExecutorErrorHandler.LogMethodNotFound(actionName, methodName, gameObject);
+                    return;
+                }
+
+                // Invocar el método con try-catch para capturar excepciones
+                try
+                {
+                    method.Invoke(this, new object[] { parameters });
+                }
+                catch (TargetInvocationException tie)
+                {
+                    // TargetInvocationException envuelve la excepción real
+                    ActionExecutorErrorHandler.LogInvocationException(actionName, methodName, tie.InnerException ?? tie, gameObject, parameters);
+                }
+                catch (Exception ex)
+                {
+                    ActionExecutorErrorHandler.LogInvocationException(actionName, methodName, ex, gameObject, parameters);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Debug.LogWarning($"[DefaultActionExecutor] Método '{methodName}' no encontrado para la acción '{actionName}'");
+                Debug.LogError($"[DefaultActionExecutor] Error inesperado en Execute(): {ex.Message}\n{ex.StackTrace}", gameObject);
             }
         }
 
@@ -60,43 +88,54 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnPlayAnimation(Dictionary<string, string> parameters)
         {
-            Animator animator = GetComponent<Animator>();
-            if (animator == null)
+            try
             {
-                Debug.LogError("[DefaultActionExecutor.OnPlayAnimation] No Animator encontrado en el GameObject");
-                return;
-            }
-
-            if (!parameters.TryGetValue("animationName", out string animationName))
-            {
-                Debug.LogError("[DefaultActionExecutor.OnPlayAnimation] Parámetro 'animationName' requerido");
-                return;
-            }
-
-            float speed = 1f;
-            if (parameters.TryGetValue("speed", out string speedStr))
-            {
-                if (!float.TryParse(speedStr, out speed))
+                Animator animator = GetComponent<Animator>();
+                if (animator == null)
                 {
-                    Debug.LogWarning($"[DefaultActionExecutor.OnPlayAnimation] 'speed' inválido: '{speedStr}', usando 1f");
-                    speed = 1f;
+                    ActionExecutorErrorHandler.LogMissingComponent("PlayAnimation", "Animator", gameObject);
+                    return;
                 }
-            }
 
-            bool loop = true;
-            if (parameters.TryGetValue("loop", out string loopStr))
-            {
-                if (!bool.TryParse(loopStr, out loop))
+                // Validar parámetro requerido
+                if (!parameters.TryGetValue("animationName", out string animationName) || string.IsNullOrEmpty(animationName))
                 {
-                    Debug.LogWarning($"[DefaultActionExecutor.OnPlayAnimation] 'loop' inválido: '{loopStr}', usando true");
-                    loop = true;
+                    ActionExecutorErrorHandler.LogMissingParameter("PlayAnimation", "animationName", gameObject);
+                    return;
                 }
+
+                // Parsear speed (opcional)
+                float speed = 1f;
+                if (parameters.TryGetValue("speed", out string speedStr) && !string.IsNullOrEmpty(speedStr))
+                {
+                    if (!float.TryParse(speedStr, out speed))
+                    {
+                        ActionExecutorErrorHandler.LogParameterParsingError("PlayAnimation", "speed", speedStr, "float", gameObject);
+                        speed = 1f;
+                    }
+                }
+
+                // Parsear loop (opcional)
+                bool loop = true;
+                if (parameters.TryGetValue("loop", out string loopStr) && !string.IsNullOrEmpty(loopStr))
+                {
+                    if (!bool.TryParse(loopStr, out loop))
+                    {
+                        ActionExecutorErrorHandler.LogParameterParsingError("PlayAnimation", "loop", loopStr, "bool", gameObject);
+                        loop = true;
+                    }
+                }
+
+                // Ejecutar acción
+                animator.SetTrigger(animationName);
+                animator.speed = Mathf.Max(0.1f, speed); // Prevenir velocidad 0 o negativa
+
+                Debug.Log($"[PlayAnimation] ✓ {animationName} | speed={speed} | loop={loop}", gameObject);
             }
-
-            animator.SetTrigger(animationName);
-            animator.speed = speed;
-
-            Debug.Log($"[DefaultActionExecutor.OnPlayAnimation] ✓ Ejecutada: {animationName} | speed={speed} | loop={loop}");
+            catch (System.Exception ex)
+            {
+                ActionExecutorErrorHandler.LogOperationFailed("PlayAnimation", "SetTrigger/SetSpeed", ex.Message, gameObject);
+            }
         }
 
         protected virtual void OnCrossFadeAnimation(Dictionary<string, string> parameters)
