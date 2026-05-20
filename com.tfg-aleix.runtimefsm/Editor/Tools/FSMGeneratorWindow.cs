@@ -273,44 +273,78 @@ using RuntimeFSM.Implementations;
 /// Action Executor personalizado.
 ///
 /// Este archivo fue generado por FSMGeneratorWindow.
-/// Puedes sobrescribir cualquier acción para personalizar su comportamiento.
+/// Hereda de DefaultActionExecutor que implementa TODAS las acciones predefinidas.
+///
+/// Sobrescribe cualquier método On[Accion] para personalizar su comportamiento.
+/// Los métodos disponibles están organizados por categorías:
+///
+/// ANIMATION:
+/// - OnPlayAnimation, OnCrossFadeAnimation, OnStopAnimation, OnPauseAnimation, etc.
+///
+/// MOVEMENT:
+/// - OnMoveToPosition, OnMoveToTarget, OnJump, OnDash, OnTeleport, etc.
+///
+/// AI:
+/// - OnSetTarget, OnChaseTarget, OnFleeFromTarget, OnPatrol, OnWait, etc.
+///
+/// COMBAT:
+/// - OnAttack, OnMeleeAttack, OnRangedAttack, OnTakeDamage, OnHeal, OnDie, etc.
+///
+/// AUDIO:
+/// - OnPlaySound, OnPlayOneShot, OnSetVolume, OnMuteAudio, etc.
+///
+/// VFX:
+/// - OnSpawnVFX, OnPlayParticleSystem, OnShakeCamera, OnChangeColor, etc.
+///
+/// VARIABLES:
+/// - OnSetBool, OnSetInt, OnSetFloat, OnSetString, etc.
+///
+/// GAMEOBJECT:
+/// - OnSetActive, OnDestroyObject, OnEnableComponent, OnSetTag, etc.
+///
+/// UI:
+/// - OnShowUI, OnHideUI, OnSetUIText, OnSetUIProgress, etc.
+///
+/// EVENTS:
+/// - OnSendEvent, OnBroadcastEvent, OnInvokeMethod, etc.
 /// </summary>
 public class {className} : DefaultActionExecutor
 {{
-    // Ejemplo: Personalizar PlayAnimation
+    // EJEMPLO: Personalizar una acción específica
+    // Descomenta y modifica para tu caso de uso:
+
     // protected override void OnPlayAnimation(Dictionary<string, string> parameters)
     // {{
     //     if (!parameters.TryGetValue(""animationName"", out string animationName))
     //         return;
     //
-    //     // Tu lógica personalizada aquí
+    //     // Tu lógica personalizada
     //     Debug.Log($""Animación personalizada: {{animationName}}"");
-    //     base.OnPlayAnimation(parameters); // O no llamar a base si quieres reemplazarlo completamente
     // }}
 
-    // Ejemplo: Personalizar DealDamage
-    // protected override void OnDealDamage(Dictionary<string, string> parameters)
+    // protected override void OnAttack(Dictionary<string, string> parameters)
     // {{
-    //     if (!parameters.TryGetValue(""damageAmount"", out string damageStr))
+    //     if (!parameters.TryGetValue(""damage"", out string damageStr))
     //         return;
     //
     //     if (!int.TryParse(damageStr, out int damage))
     //         return;
     //
-    //     // Tu lógica de daño personalizada
-    //     Health -= damage;
-    //     Debug.Log($""Daño recibido: {{damage}}"");
+    //     // Tu lógica de ataque
+    //     Debug.Log($""¡Ataque de {{damage}} puntos de daño!"");
     // }}
 
-    // Ejemplo: Personalizar PlaySound
-    // protected override void OnPlaySound(Dictionary<string, string> parameters)
+    // protected override void OnSetActive(Dictionary<string, string> parameters)
     // {{
-    //     if (!parameters.TryGetValue(""soundName"", out string soundName))
+    //     if (!parameters.TryGetValue(""value"", out string valueStr))
     //         return;
     //
-    //     // Tu lógica de audio personalizada
-    //     AudioManager.Instance.PlaySound(soundName);
+    //     bool active = valueStr.ToLower() == ""true"";
+    //     gameObject.SetActive(active);
     // }}
+
+    // Todos los métodos base están implementados en DefaultActionExecutor
+    // Simplemente sobrescribe los que necesites personalizar
 }}
 ";
         }

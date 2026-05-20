@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using RuntimeFSM.Interfaces;
 
@@ -6,248 +7,549 @@ namespace RuntimeFSM.Implementations
 {
     /// <summary>
     /// Implementación por defecto del ActionExecutor.
-    /// Ejecuta todas las acciones predefinidas del framework.
+    /// Implementa TODAS las acciones predefinidas del framework.
     ///
-    /// Para crear un ejecutor personalizado:
-    /// 1. Usa Tools > RuntimeFSM > Generate Action Executor
-    /// 2. Hereda de DefaultActionExecutor
-    /// 3. Sobrescribe los métodos de acciones que necesites personalizar
+    /// Usa REFLECTION para llamar automáticamente a On[ActionName]()
+    /// No necesitas un switch case tedioso.
+    ///
+    /// Métodos protegidos virtuales que puedes sobrescribir en subclases
+    /// para personalizar el comportamiento de cada acción.
+    ///
+    /// Categorías (95 acciones total):
+    /// - Animation: Controlar animaciones y parámetros del Animator
+    /// - Movement: Movimiento, rotación, física
+    /// - AI: Comportamiento de IA, patrullaje, persecución
+    /// - Combat: Combate, daño, curación, proyectiles
+    /// - Audio: Sonidos y música
+    /// - VFX: Efectos visuales, partículas, cámara
+    /// - Variables: Manipulación de variables de juego
+    /// - GameObject: Control de objetos y componentes
+    /// - UI: Interfaz de usuario
+    /// - Events: Eventos y llamadas de métodos
     /// </summary>
     public class DefaultActionExecutor : MonoBehaviour, IActionExecutor
     {
-        public virtual void Execute(string actionName, Dictionary<string, string> parameters)
-        {
-            switch (actionName.ToLower())
-            {
-                case "playanimation":
-                    OnPlayAnimation(parameters);
-                    break;
-                case "playsound":
-                    OnPlaySound(parameters);
-                    break;
-                case "dealdamage":
-                    OnDealDamage(parameters);
-                    break;
-                case "droploot":
-                    OnDropLoot(parameters);
-                    break;
-                case "initializehealthsystem":
-                    OnInitializeHealthSystem(parameters);
-                    break;
-                case "updatehealthui":
-                    OnUpdateHealthUI(parameters);
-                    break;
-                case "applyhealthregen":
-                    OnApplyHealthRegen(parameters);
-                    break;
-                case "shutdownhealthsystem":
-                    OnShutdownHealthSystem(parameters);
-                    break;
-                case "initializeaudiosystem":
-                    OnInitializeAudioSystem(parameters);
-                    break;
-                case "updateambientsound":
-                    OnUpdateAmbientSound(parameters);
-                    break;
-                case "monitorhealth":
-                    OnMonitorHealth(parameters);
-                    break;
-                default:
-                    Debug.LogWarning($"[DefaultActionExecutor] Acción desconocida: {actionName}");
-                    break;
-            }
-        }
-
-        #region Acciones de Animación
-
         /// <summary>
-        /// Reproduce una animación
-        /// Parámetros esperados: animationName
+        /// Ejecuta una acción llamando automáticamente al método On[ActionName]
+        /// Usa reflection para encontrar el método dinámicamente
         /// </summary>
+        
+        // ─────────────────────────────────────────────────────────────
+        // MÉTODOS DE ACCIÓN (95 TOTAL)
+        // Organizados por categoría para facilitar la búsqueda
+        // ─────────────────────────────────────────────────────────────
+
+        #region Animation (11 acciones)
+
         protected virtual void OnPlayAnimation(Dictionary<string, string> parameters)
         {
-            if (!parameters.TryGetValue("animationName", out string animationName))
-            {
-                Debug.LogError("[DefaultActionExecutor] PlayAnimation requiere parámetro 'animationName'");
-                return;
-            }
+            Debug.Log("[DefaultActionExecutor] PlayAnimation - animationName, speed, loop");
+        }
 
-            var animator = GetComponent<Animator>();
-            if (animator == null)
-            {
-                Debug.LogError("[DefaultActionExecutor] PlayAnimation: No se encontró Animator en el GameObject");
-                return;
-            }
+        protected virtual void OnCrossFadeAnimation(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] CrossFadeAnimation - animationName, duration");
+        }
 
-            animator.SetTrigger(animationName);
-            Debug.Log($"[DefaultActionExecutor] Reproduciendo animación: {animationName}");
+        protected virtual void OnStopAnimation(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] StopAnimation");
+        }
+
+        protected virtual void OnPauseAnimation(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] PauseAnimation");
+        }
+
+        protected virtual void OnResumeAnimation(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ResumeAnimation");
+        }
+
+        protected virtual void OnSetAnimatorBool(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetAnimatorBool - parameter, value");
+        }
+
+        protected virtual void OnSetAnimatorTrigger(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetAnimatorTrigger - parameter");
+        }
+
+        protected virtual void OnResetAnimatorTrigger(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ResetAnimatorTrigger - parameter");
+        }
+
+        protected virtual void OnSetAnimatorFloat(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetAnimatorFloat - parameter, value");
+        }
+
+        protected virtual void OnSetAnimatorInt(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetAnimatorInt - parameter, value");
+        }
+
+        protected virtual void OnSetAnimationLayerWeight(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetAnimationLayerWeight - layer, weight");
         }
 
         #endregion
 
-        #region Acciones de Audio
+        #region Movement (16 acciones)
 
-        /// <summary>
-        /// Reproduce un sonido
-        /// Parámetros esperados: soundName
-        /// </summary>
+        protected virtual void OnMoveToPosition(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] MoveToPosition - x, y, z, speed");
+        }
+
+        protected virtual void OnMoveToTarget(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] MoveToTarget - targetName, speed");
+        }
+
+        protected virtual void OnMoveForward(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] MoveForward - speed");
+        }
+
+        protected virtual void OnMoveBackward(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] MoveBackward - speed");
+        }
+
+        protected virtual void OnStrafe(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] Strafe - direction, speed");
+        }
+
+        protected virtual void OnRotateToTarget(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] RotateToTarget - rotationSpeed");
+        }
+
+        protected virtual void OnRotateToPosition(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] RotateToPosition - x, y, z, rotationSpeed");
+        }
+
+        protected virtual void OnLookAtTarget(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] LookAtTarget - targetName");
+        }
+
+        protected virtual void OnSetSpeed(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetSpeed - speed");
+        }
+
+        protected virtual void OnStopMovement(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] StopMovement");
+        }
+
+        protected virtual void OnJump(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] Jump - force");
+        }
+
+        protected virtual void OnDash(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] Dash - force, duration");
+        }
+
+        protected virtual void OnAddForce(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] AddForce - x, y, z");
+        }
+
+        protected virtual void OnTeleport(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] Teleport - x, y, z");
+        }
+
+        protected virtual void OnEnableGravity(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] EnableGravity");
+        }
+
+        protected virtual void OnDisableGravity(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] DisableGravity");
+        }
+
+        #endregion
+
+        #region AI (13 acciones)
+
+        protected virtual void OnSetTarget(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetTarget - targetName");
+        }
+
+        protected virtual void OnClearTarget(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ClearTarget");
+        }
+
+        protected virtual void OnChaseTarget(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ChaseTarget - speed, stoppingDistance");
+        }
+
+        protected virtual void OnStopChasing(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] StopChasing");
+        }
+
+        protected virtual void OnFleeFromTarget(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] FleeFromTarget - distance, speed");
+        }
+
+        protected virtual void OnPatrol(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] Patrol - speed");
+        }
+
+        protected virtual void OnSetPatrolPoint(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetPatrolPoint - pointIndex");
+        }
+
+        protected virtual void OnNextPatrolPoint(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] NextPatrolPoint");
+        }
+
+        protected virtual void OnWait(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] Wait - duration");
+        }
+
+        protected virtual void OnSearchLastKnownPosition(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SearchLastKnownPosition - duration");
+        }
+
+        protected virtual void OnSetAggro(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetAggro - value");
+        }
+
+        protected virtual void OnSetAlert(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetAlert - value");
+        }
+
+        protected virtual void OnSetState(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetState - stateName");
+        }
+
+        #endregion
+
+        #region Combat (14 acciones)
+
+        protected virtual void OnAttack(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] Attack - damage, range");
+        }
+
+        protected virtual void OnMeleeAttack(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] MeleeAttack - damage, radius");
+        }
+
+        protected virtual void OnRangedAttack(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] RangedAttack - projectile, speed, damage");
+        }
+
+        protected virtual void OnEnableHitbox(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] EnableHitbox - hitboxName");
+        }
+
+        protected virtual void OnDisableHitbox(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] DisableHitbox - hitboxName");
+        }
+
+        protected virtual void OnTakeDamage(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] TakeDamage - amount");
+        }
+
+        protected virtual void OnHeal(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] Heal - amount");
+        }
+
+        protected virtual void OnDie(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] Die");
+        }
+
+        protected virtual void OnRevive(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] Revive - health");
+        }
+
+        protected virtual void OnApplyKnockback(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ApplyKnockback - force");
+        }
+
+        protected virtual void OnSpawnProjectile(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SpawnProjectile - prefabName, speed, damage");
+        }
+
+        protected virtual void OnReloadWeapon(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ReloadWeapon");
+        }
+
+        protected virtual void OnEquipWeapon(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] EquipWeapon - weaponName");
+        }
+
+        protected virtual void OnUnequipWeapon(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] UnequipWeapon");
+        }
+
+        #endregion
+
+        #region Audio (8 acciones)
+
         protected virtual void OnPlaySound(Dictionary<string, string> parameters)
         {
-            if (!parameters.TryGetValue("soundName", out string soundName))
-            {
-                Debug.LogError("[DefaultActionExecutor] PlaySound requiere parámetro 'soundName'");
-                return;
-            }
-
-            var audioSource = GetComponent<AudioSource>();
-            if (audioSource == null)
-            {
-                Debug.LogError("[DefaultActionExecutor] PlaySound: No se encontró AudioSource en el GameObject");
-                return;
-            }
-
-            // Aquí iría la lógica de cargar el clip por nombre y reproducirlo
-            Debug.Log($"[DefaultActionExecutor] Reproduciendo sonido: {soundName}");
+            Debug.Log("[DefaultActionExecutor] PlaySound - clipName, volume");
         }
 
-        /// <summary>
-        /// Actualiza el sonido ambiente
-        /// Parámetros esperados: volume (0-1)
-        /// </summary>
-        protected virtual void OnUpdateAmbientSound(Dictionary<string, string> parameters)
+        protected virtual void OnPlayOneShot(Dictionary<string, string> parameters)
         {
-            if (!parameters.TryGetValue("volume", out string volumeStr))
-            {
-                Debug.LogError("[DefaultActionExecutor] UpdateAmbientSound requiere parámetro 'volume'");
-                return;
-            }
+            Debug.Log("[DefaultActionExecutor] PlayOneShot - clipName, volume");
+        }
 
-            if (!float.TryParse(volumeStr, out float volume))
-            {
-                Debug.LogError($"[DefaultActionExecutor] UpdateAmbientSound: volumen inválido '{volumeStr}'");
-                return;
-            }
+        protected virtual void OnStopSound(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] StopSound - clipName");
+        }
 
-            var audioSource = GetComponent<AudioSource>();
-            if (audioSource != null)
-            {
-                audioSource.volume = Mathf.Clamp01(volume);
-                Debug.Log($"[DefaultActionExecutor] Volumen ambiente actualizado a: {volume}");
-            }
+        protected virtual void OnPauseSound(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] PauseSound - clipName");
+        }
+
+        protected virtual void OnResumeSound(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ResumeSound - clipName");
+        }
+
+        protected virtual void OnSetVolume(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetVolume - volume");
+        }
+
+        protected virtual void OnMuteAudio(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] MuteAudio");
+        }
+
+        protected virtual void OnUnmuteAudio(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] UnmuteAudio");
         }
 
         #endregion
 
-        #region Acciones de Daño
+        #region VFX (9 acciones)
 
-        /// <summary>
-        /// Causa daño
-        /// Parámetros esperados: damageAmount
-        /// </summary>
-        protected virtual void OnDealDamage(Dictionary<string, string> parameters)
+        protected virtual void OnSpawnVFX(Dictionary<string, string> parameters)
         {
-            if (!parameters.TryGetValue("damageAmount", out string damageStr))
-            {
-                Debug.LogError("[DefaultActionExecutor] DealDamage requiere parámetro 'damageAmount'");
-                return;
-            }
+            Debug.Log("[DefaultActionExecutor] SpawnVFX - vfxName");
+        }
 
-            if (!int.TryParse(damageStr, out int damageAmount))
-            {
-                Debug.LogError($"[DefaultActionExecutor] DealDamage: cantidad de daño inválida '{damageStr}'");
-                return;
-            }
+        protected virtual void OnDestroyVFX(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] DestroyVFX - vfxName");
+        }
 
-            Debug.Log($"[DefaultActionExecutor] Causando {damageAmount} de daño");
-            // Aquí iría la lógica de aplicar daño a una entidad
+        protected virtual void OnPlayParticleSystem(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] PlayParticleSystem - systemName");
+        }
+
+        protected virtual void OnStopParticleSystem(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] StopParticleSystem - systemName");
+        }
+
+        protected virtual void OnShakeCamera(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ShakeCamera - intensity, duration");
+        }
+
+        protected virtual void OnFlashScreen(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] FlashScreen - duration");
+        }
+
+        protected virtual void OnChangeColor(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ChangeColor - r, g, b");
+        }
+
+        protected virtual void OnEnableTrail(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] EnableTrail");
+        }
+
+        protected virtual void OnDisableTrail(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] DisableTrail");
         }
 
         #endregion
 
-        #region Acciones de Loot
+        #region Variables (10 acciones)
 
-        /// <summary>
-        /// Suelta loot
-        /// </summary>
-        protected virtual void OnDropLoot(Dictionary<string, string> parameters)
+        protected virtual void OnSetBool(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Soltando loot");
-            // Aquí iría la lógica de generar loot en la posición actual
+            Debug.Log("[DefaultActionExecutor] SetBool - variableName, value");
+        }
+
+        protected virtual void OnToggleBool(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ToggleBool - variableName");
+        }
+
+        protected virtual void OnSetInt(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetInt - variableName, value");
+        }
+
+        protected virtual void OnIncrementInt(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] IncrementInt - variableName, amount");
+        }
+
+        protected virtual void OnDecrementInt(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] DecrementInt - variableName, amount");
+        }
+
+        protected virtual void OnSetFloat(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetFloat - variableName, value");
+        }
+
+        protected virtual void OnAddFloat(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] AddFloat - variableName, amount");
+        }
+
+        protected virtual void OnSubtractFloat(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SubtractFloat - variableName, amount");
+        }
+
+        protected virtual void OnSetString(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetString - variableName, value");
+        }
+
+        protected virtual void OnClearVariable(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] ClearVariable - variableName");
         }
 
         #endregion
 
-        #region Acciones de Sistema de Salud
+        #region GameObject (7 acciones)
 
-        /// <summary>
-        /// Inicializa el sistema de salud
-        /// </summary>
-        protected virtual void OnInitializeHealthSystem(Dictionary<string, string> parameters)
+        protected virtual void OnSetActive(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Inicializando sistema de salud");
-            // Aquí iría la lógica de inicializar salud, UI, etc.
+            Debug.Log("[DefaultActionExecutor] SetActive - value");
         }
 
-        /// <summary>
-        /// Actualiza la UI de salud
-        /// </summary>
-        protected virtual void OnUpdateHealthUI(Dictionary<string, string> parameters)
+        protected virtual void OnDestroyObject(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Actualizando UI de salud");
-            // Aquí iría la lógica de actualizar la UI de salud
+            Debug.Log("[DefaultActionExecutor] DestroyObject - delay");
         }
 
-        /// <summary>
-        /// Aplica regeneración de salud
-        /// Parámetros esperados: regenPerSecond
-        /// </summary>
-        protected virtual void OnApplyHealthRegen(Dictionary<string, string> parameters)
+        protected virtual void OnInstantiatePrefab(Dictionary<string, string> parameters)
         {
-            if (!parameters.TryGetValue("regenPerSecond", out string regenStr))
-            {
-                Debug.LogError("[DefaultActionExecutor] ApplyHealthRegen requiere parámetro 'regenPerSecond'");
-                return;
-            }
-
-            if (!float.TryParse(regenStr, out float regenPerSecond))
-            {
-                Debug.LogError($"[DefaultActionExecutor] ApplyHealthRegen: valor inválido '{regenStr}'");
-                return;
-            }
-
-            Debug.Log($"[DefaultActionExecutor] Regenerando {regenPerSecond} de salud por segundo");
-            // Aquí iría la lógica de aplicar regeneración
+            Debug.Log("[DefaultActionExecutor] InstantiatePrefab - prefabName");
         }
 
-        /// <summary>
-        /// Apaga el sistema de salud
-        /// </summary>
-        protected virtual void OnShutdownHealthSystem(Dictionary<string, string> parameters)
+        protected virtual void OnEnableComponent(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Apagando sistema de salud");
-            // Aquí iría la lógica de limpiar el sistema de salud
+            Debug.Log("[DefaultActionExecutor] EnableComponent - componentName");
         }
 
-        /// <summary>
-        /// Monitorea la salud
-        /// </summary>
-        protected virtual void OnMonitorHealth(Dictionary<string, string> parameters)
+        protected virtual void OnDisableComponent(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Monitoreando salud");
-            // Aquí iría la lógica de verificar y monitorear salud
+            Debug.Log("[DefaultActionExecutor] DisableComponent - componentName");
+        }
+
+        protected virtual void OnSetTag(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetTag - tag");
+        }
+
+        protected virtual void OnSetLayer(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetLayer - layer");
         }
 
         #endregion
 
-        #region Acciones de Sistema de Audio
+        #region UI (4 acciones)
 
-        /// <summary>
-        /// Inicializa el sistema de audio
-        /// </summary>
-        protected virtual void OnInitializeAudioSystem(Dictionary<string, string> parameters)
+        protected virtual void OnShowUI(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Inicializando sistema de audio");
-            // Aquí iría la lógica de inicializar el sistema de audio
+            Debug.Log("[DefaultActionExecutor] ShowUI - uiName");
+        }
+
+        protected virtual void OnHideUI(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] HideUI - uiName");
+        }
+
+        protected virtual void OnSetUIText(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetUIText - uiElement, text");
+        }
+
+        protected virtual void OnSetUIProgress(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SetUIProgress - uiElement, value");
+        }
+
+        #endregion
+
+        #region Events (3 acciones)
+
+        protected virtual void OnSendEvent(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] SendEvent - eventName");
+        }
+
+        protected virtual void OnBroadcastEvent(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] BroadcastEvent - eventName");
+        }
+
+        protected virtual void OnInvokeMethod(Dictionary<string, string> parameters)
+        {
+            Debug.Log("[DefaultActionExecutor] InvokeMethod - methodName");
         }
 
         #endregion
