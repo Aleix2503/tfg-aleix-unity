@@ -355,6 +355,8 @@ public class {className} : DefaultActionExecutor
 using RuntimeFSM.Data;
 using RuntimeFSM.Utils;
 using System;
+using System.Collections.Generic;
+using RuntimeFSM.Utilities;
 
 /// <summary>
 /// Condition Evaluator personalizado.
@@ -370,8 +372,6 @@ public class " + className + @" : ConditionEvaluatorBase
 {
     // PASO 1: Define tus variables que usarás en las condiciones del FSM
     [SerializeField] private float distanceToPlayer = 0f;
-    [SerializeField] private bool isAlerted = false;
-    [SerializeField] private int health = 100;
 
     // PASO 2: Implement EvaluateSimpleCondition para tu lógica específica
     protected override bool EvaluateSimpleCondition(ConditionDefinition condition)
@@ -424,8 +424,6 @@ public class " + className + @" : ConditionEvaluatorBase
         return variableName.ToLower() switch
         {
             ""distancetoplayer"" => distanceToPlayer,
-            ""health"" => health,
-            ""isalerted"" => isAlerted ? 1f : 0f,
             // Agrega más variables aquí
             _ => throw new KeyNotFoundException(
                 ""Variable '"" + variableName + ""' no está implementada en GetVariableValue(). "" +
