@@ -377,27 +377,11 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnRotateToTarget(Dictionary<string, string> parameters)
         {
-            if (!parameters.TryGetValue("targetName", out string targetName))
-            {
-                Debug.LogError("[DefaultActionExecutor.OnRotateToTarget] Parámetro 'targetName' requerido");
-                return;
-            }
-
-            GameObject target = GameObject.Find(targetName);
-            if (target == null)
-            {
-                Debug.LogError($"[DefaultActionExecutor.OnRotateToTarget] Target '{targetName}' no encontrado");
-                return;
-            }
-
             float rotationSpeed = 2f;
             if (parameters.TryGetValue("rotationSpeed", out string rotStr) && !float.TryParse(rotStr, out rotationSpeed))
                 rotationSpeed = 2f;
 
-            Vector3 direction = (target.transform.position - transform.position).normalized;
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
-            Debug.Log($"[DefaultActionExecutor.OnRotateToTarget] ✓ Girando hacia {targetName} | rotSpeed={rotationSpeed}");
+            Debug.Log($"[DefaultActionExecutor.OnRotateToTarget] ✓ Girando al target | rotationSpeed={rotationSpeed}");
         }
 
         protected virtual void OnRotateToPosition(Dictionary<string, string> parameters)
@@ -694,9 +678,9 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnAttack(Dictionary<string, string> parameters)
         {
-            float damage = 10f;
-            if (parameters.TryGetValue("damage", out string dmgStr) && !float.TryParse(dmgStr, out damage))
-                damage = 10f;
+            int damage = 10;
+            if (parameters.TryGetValue("damage", out string dmgStr) && !int.TryParse(dmgStr, out damage))
+                damage = 10;
 
             float range = 5f;
             if (parameters.TryGetValue("range", out string rangeStr) && !float.TryParse(rangeStr, out range))
@@ -707,9 +691,9 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnMeleeAttack(Dictionary<string, string> parameters)
         {
-            float damage = 15f;
-            if (parameters.TryGetValue("damage", out string dmgStr) && !float.TryParse(dmgStr, out damage))
-                damage = 15f;
+            int damage = 15;
+            if (parameters.TryGetValue("damage", out string dmgStr) && !int.TryParse(dmgStr, out damage))
+                damage = 15;
 
             float radius = 2f;
             if (parameters.TryGetValue("radius", out string radiusStr) && !float.TryParse(radiusStr, out radius))
@@ -730,9 +714,9 @@ namespace RuntimeFSM.Implementations
             if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
                 speed = 20f;
 
-            float damage = 10f;
-            if (parameters.TryGetValue("damage", out string dmgStr) && !float.TryParse(dmgStr, out damage))
-                damage = 10f;
+            int damage = 10;
+            if (parameters.TryGetValue("damage", out string dmgStr) && !int.TryParse(dmgStr, out damage))
+                damage = 10;
 
             Debug.Log($"[DefaultActionExecutor.OnRangedAttack] ✓ Ataque a distancia | projectile={projectile} | speed={speed} | damage={damage}");
         }
@@ -769,9 +753,9 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnTakeDamage(Dictionary<string, string> parameters)
         {
-            if (!parameters.TryGetValue("amount", out string amountStr) || !float.TryParse(amountStr, out float amount))
+            if (!parameters.TryGetValue("amount", out string amountStr) || !int.TryParse(amountStr, out int amount))
             {
-                Debug.LogError("[DefaultActionExecutor.OnTakeDamage] Parámetro 'amount' inválido");
+                Debug.LogError("[DefaultActionExecutor.OnTakeDamage] Parámetro 'amount' inválido (int)");
                 return;
             }
 
@@ -780,9 +764,9 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnHeal(Dictionary<string, string> parameters)
         {
-            if (!parameters.TryGetValue("amount", out string amountStr) || !float.TryParse(amountStr, out float amount))
+            if (!parameters.TryGetValue("amount", out string amountStr) || !int.TryParse(amountStr, out int amount))
             {
-                Debug.LogError("[DefaultActionExecutor.OnHeal] Parámetro 'amount' inválido");
+                Debug.LogError("[DefaultActionExecutor.OnHeal] Parámetro 'amount' inválido (int)");
                 return;
             }
 
@@ -797,9 +781,9 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnRevive(Dictionary<string, string> parameters)
         {
-            float health = 100f;
-            if (parameters.TryGetValue("health", out string healthStr) && !float.TryParse(healthStr, out health))
-                health = 100f;
+            int health = 100;
+            if (parameters.TryGetValue("health", out string healthStr) && !int.TryParse(healthStr, out health))
+                health = 100;
 
             Debug.Log($"[DefaultActionExecutor.OnRevive] ✓ Revivido | health={health}");
         }
@@ -833,9 +817,9 @@ namespace RuntimeFSM.Implementations
             if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
                 speed = 20f;
 
-            float damage = 10f;
-            if (parameters.TryGetValue("damage", out string dmgStr) && !float.TryParse(dmgStr, out damage))
-                damage = 10f;
+            int damage = 10;
+            if (parameters.TryGetValue("damage", out string dmgStr) && !int.TryParse(dmgStr, out damage))
+                damage = 10;
 
             Debug.Log($"[DefaultActionExecutor.OnSpawnProjectile] ✓ Proyectil spawneado | prefab={prefabName} | speed={speed} | damage={damage}");
         }
@@ -1354,15 +1338,14 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnSetLayer(Dictionary<string, string> parameters)
         {
-            if (!parameters.TryGetValue("layer", out string layerName))
+            if (!parameters.TryGetValue("layer", out string layerStr) || !int.TryParse(layerStr, out int layer))
             {
-                Debug.LogError("[DefaultActionExecutor.OnSetLayer] Parámetro 'layer' requerido");
+                Debug.LogError("[DefaultActionExecutor.OnSetLayer] Parámetro 'layer' inválido (int)");
                 return;
             }
 
-            int layer = LayerMask.NameToLayer(layerName);
             gameObject.layer = layer;
-            Debug.Log($"[DefaultActionExecutor.OnSetLayer] ✓ Layer: {layerName}");
+            Debug.Log($"[DefaultActionExecutor.OnSetLayer] ✓ Layer: {layer}");
         }
 
         #endregion
