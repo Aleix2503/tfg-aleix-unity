@@ -33,7 +33,24 @@ namespace RuntimeFSM.Implementations
         /// Ejecuta una acción llamando automáticamente al método On[ActionName]
         /// Usa reflection para encontrar el método dinámicamente
         /// </summary>
-        
+        public virtual void Execute(string actionName, Dictionary<string, string> parameters)
+        {
+            string methodName = $"On{actionName}";
+            var method = GetType().GetMethod(
+                methodName,
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.IgnoreCase
+            );
+
+            if (method != null)
+            {
+                method.Invoke(this, new object[] { parameters });
+            }
+            else
+            {
+                Debug.LogWarning($"[DefaultActionExecutor] Método '{methodName}' no encontrado para la acción '{actionName}'");
+            }
+        }
+
         // ─────────────────────────────────────────────────────────────
         // MÉTODOS DE ACCIÓN (95 TOTAL)
         // Organizados por categoría para facilitar la búsqueda
