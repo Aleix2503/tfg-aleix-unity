@@ -60,57 +60,235 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnPlayAnimation(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] PlayAnimation - animationName, speed, loop");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnPlayAnimation] No Animator encontrado en el GameObject");
+                return;
+            }
+
+            if (!parameters.TryGetValue("animationName", out string animationName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnPlayAnimation] Parámetro 'animationName' requerido");
+                return;
+            }
+
+            float speed = 1f;
+            if (parameters.TryGetValue("speed", out string speedStr))
+            {
+                if (!float.TryParse(speedStr, out speed))
+                {
+                    Debug.LogWarning($"[DefaultActionExecutor.OnPlayAnimation] 'speed' inválido: '{speedStr}', usando 1f");
+                    speed = 1f;
+                }
+            }
+
+            bool loop = true;
+            if (parameters.TryGetValue("loop", out string loopStr))
+            {
+                if (!bool.TryParse(loopStr, out loop))
+                {
+                    Debug.LogWarning($"[DefaultActionExecutor.OnPlayAnimation] 'loop' inválido: '{loopStr}', usando true");
+                    loop = true;
+                }
+            }
+
+            animator.SetTrigger(animationName);
+            animator.speed = speed;
+
+            Debug.Log($"[DefaultActionExecutor.OnPlayAnimation] ✓ Ejecutada: {animationName} | speed={speed} | loop={loop}");
         }
 
         protected virtual void OnCrossFadeAnimation(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] CrossFadeAnimation - animationName, duration");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnCrossFadeAnimation] No Animator encontrado");
+                return;
+            }
+
+            if (!parameters.TryGetValue("animationName", out string animationName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnCrossFadeAnimation] Parámetro 'animationName' requerido");
+                return;
+            }
+
+            float duration = 0.3f;
+            if (parameters.TryGetValue("duration", out string durationStr) && !float.TryParse(durationStr, out duration))
+                duration = 0.3f;
+
+            animator.CrossFadeInFixedTime(animationName, duration);
+            Debug.Log($"[DefaultActionExecutor.OnCrossFadeAnimation] ✓ CrossFade: {animationName} | duration={duration}s");
         }
 
         protected virtual void OnStopAnimation(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] StopAnimation");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnStopAnimation] No Animator encontrado");
+                return;
+            }
+
+            animator.speed = 0f;
+            Debug.Log("[DefaultActionExecutor.OnStopAnimation] ✓ Animación detenida");
         }
 
         protected virtual void OnPauseAnimation(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] PauseAnimation");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnPauseAnimation] No Animator encontrado");
+                return;
+            }
+
+            animator.speed = 0f;
+            Debug.Log("[DefaultActionExecutor.OnPauseAnimation] ✓ Animación pausada");
         }
 
         protected virtual void OnResumeAnimation(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ResumeAnimation");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnResumeAnimation] No Animator encontrado");
+                return;
+            }
+
+            animator.speed = 1f;
+            Debug.Log("[DefaultActionExecutor.OnResumeAnimation] ✓ Animación reanudada");
         }
 
         protected virtual void OnSetAnimatorBool(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetAnimatorBool - parameter, value");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetAnimatorBool] No Animator encontrado");
+                return;
+            }
+
+            if (!parameters.TryGetValue("parameter", out string parameter))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetAnimatorBool] Parámetro 'parameter' requerido");
+                return;
+            }
+
+            bool value = false;
+            if (parameters.TryGetValue("value", out string valueStr) && !bool.TryParse(valueStr, out value))
+                value = false;
+
+            animator.SetBool(parameter, value);
+            Debug.Log($"[DefaultActionExecutor.OnSetAnimatorBool] ✓ {parameter} = {value}");
         }
 
         protected virtual void OnSetAnimatorTrigger(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetAnimatorTrigger - parameter");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetAnimatorTrigger] No Animator encontrado");
+                return;
+            }
+
+            if (!parameters.TryGetValue("parameter", out string parameter))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetAnimatorTrigger] Parámetro 'parameter' requerido");
+                return;
+            }
+
+            animator.SetTrigger(parameter);
+            Debug.Log($"[DefaultActionExecutor.OnSetAnimatorTrigger] ✓ Trigger: {parameter}");
         }
 
         protected virtual void OnResetAnimatorTrigger(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ResetAnimatorTrigger - parameter");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnResetAnimatorTrigger] No Animator encontrado");
+                return;
+            }
+
+            if (!parameters.TryGetValue("parameter", out string parameter))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnResetAnimatorTrigger] Parámetro 'parameter' requerido");
+                return;
+            }
+
+            animator.ResetTrigger(parameter);
+            Debug.Log($"[DefaultActionExecutor.OnResetAnimatorTrigger] ✓ Trigger reset: {parameter}");
         }
 
         protected virtual void OnSetAnimatorFloat(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetAnimatorFloat - parameter, value");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetAnimatorFloat] No Animator encontrado");
+                return;
+            }
+
+            if (!parameters.TryGetValue("parameter", out string parameter))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetAnimatorFloat] Parámetro 'parameter' requerido");
+                return;
+            }
+
+            float value = 0f;
+            if (parameters.TryGetValue("value", out string valueStr) && !float.TryParse(valueStr, out value))
+                value = 0f;
+
+            animator.SetFloat(parameter, value);
+            Debug.Log($"[DefaultActionExecutor.OnSetAnimatorFloat] ✓ {parameter} = {value}");
         }
 
         protected virtual void OnSetAnimatorInt(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetAnimatorInt - parameter, value");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetAnimatorInt] No Animator encontrado");
+                return;
+            }
+
+            if (!parameters.TryGetValue("parameter", out string parameter))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetAnimatorInt] Parámetro 'parameter' requerido");
+                return;
+            }
+
+            int value = 0;
+            if (parameters.TryGetValue("value", out string valueStr) && !int.TryParse(valueStr, out value))
+                value = 0;
+
+            animator.SetInteger(parameter, value);
+            Debug.Log($"[DefaultActionExecutor.OnSetAnimatorInt] ✓ {parameter} = {value}");
         }
 
         protected virtual void OnSetAnimationLayerWeight(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetAnimationLayerWeight - layer, weight");
+            Animator animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetAnimationLayerWeight] No Animator encontrado");
+                return;
+            }
+
+            if (!parameters.TryGetValue("layer", out string layerStr) || !int.TryParse(layerStr, out int layer))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetAnimationLayerWeight] Parámetro 'layer' requerido (int)");
+                return;
+            }
+
+            float weight = 1f;
+            if (parameters.TryGetValue("weight", out string weightStr) && !float.TryParse(weightStr, out weight))
+                weight = 1f;
+
+            animator.SetLayerWeight(layer, weight);
+            Debug.Log($"[DefaultActionExecutor.OnSetAnimationLayerWeight] ✓ Layer {layer} weight = {weight}");
         }
 
         #endregion
@@ -119,82 +297,265 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnMoveToPosition(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] MoveToPosition - x, y, z, speed");
+            Transform trans = GetComponent<Transform>();
+            float speed = 5f;
+            if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
+                speed = 5f;
+
+            if (!float.TryParse(parameters.GetValueOrDefault("x", "0"), out float x) ||
+                !float.TryParse(parameters.GetValueOrDefault("y", "0"), out float y) ||
+                !float.TryParse(parameters.GetValueOrDefault("z", "0"), out float z))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnMoveToPosition] Parámetros x, y, z inválidos");
+                return;
+            }
+
+            Vector3 targetPos = new Vector3(x, y, z);
+            trans.position = Vector3.Lerp(trans.position, targetPos, Time.deltaTime * speed);
+            Debug.Log($"[DefaultActionExecutor.OnMoveToPosition] ✓ Moviendo a ({x}, {y}, {z}) | speed={speed}");
         }
 
         protected virtual void OnMoveToTarget(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] MoveToTarget - targetName, speed");
+            if (!parameters.TryGetValue("targetName", out string targetName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnMoveToTarget] Parámetro 'targetName' requerido");
+                return;
+            }
+
+            GameObject target = GameObject.Find(targetName);
+            if (target == null)
+            {
+                Debug.LogError($"[DefaultActionExecutor.OnMoveToTarget] Target '{targetName}' no encontrado");
+                return;
+            }
+
+            float speed = 5f;
+            if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
+                speed = 5f;
+
+            transform.position = Vector3.Lerp(transform.position, target.transform.position, Time.deltaTime * speed);
+            Debug.Log($"[DefaultActionExecutor.OnMoveToTarget] ✓ Moviendo hacia {targetName} | speed={speed}");
         }
 
         protected virtual void OnMoveForward(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] MoveForward - speed");
+            float speed = 5f;
+            if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
+                speed = 5f;
+
+            transform.position += transform.forward * speed * Time.deltaTime;
+            Debug.Log($"[DefaultActionExecutor.OnMoveForward] ✓ Moviendo adelante | speed={speed}");
         }
 
         protected virtual void OnMoveBackward(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] MoveBackward - speed");
+            float speed = 5f;
+            if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
+                speed = 5f;
+
+            transform.position -= transform.forward * speed * Time.deltaTime;
+            Debug.Log($"[DefaultActionExecutor.OnMoveBackward] ✓ Moviendo atrás | speed={speed}");
         }
 
         protected virtual void OnStrafe(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Strafe - direction, speed");
+            if (!parameters.TryGetValue("direction", out string direction))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnStrafe] Parámetro 'direction' requerido (left/right)");
+                return;
+            }
+
+            float speed = 5f;
+            if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
+                speed = 5f;
+
+            Vector3 moveDir = direction.ToLower() == "left" ? -transform.right : transform.right;
+            transform.position += moveDir * speed * Time.deltaTime;
+            Debug.Log($"[DefaultActionExecutor.OnStrafe] ✓ Strafeando {direction} | speed={speed}");
         }
 
         protected virtual void OnRotateToTarget(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] RotateToTarget - rotationSpeed");
+            if (!parameters.TryGetValue("targetName", out string targetName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnRotateToTarget] Parámetro 'targetName' requerido");
+                return;
+            }
+
+            GameObject target = GameObject.Find(targetName);
+            if (target == null)
+            {
+                Debug.LogError($"[DefaultActionExecutor.OnRotateToTarget] Target '{targetName}' no encontrado");
+                return;
+            }
+
+            float rotationSpeed = 2f;
+            if (parameters.TryGetValue("rotationSpeed", out string rotStr) && !float.TryParse(rotStr, out rotationSpeed))
+                rotationSpeed = 2f;
+
+            Vector3 direction = (target.transform.position - transform.position).normalized;
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+            Debug.Log($"[DefaultActionExecutor.OnRotateToTarget] ✓ Girando hacia {targetName} | rotSpeed={rotationSpeed}");
         }
 
         protected virtual void OnRotateToPosition(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] RotateToPosition - x, y, z, rotationSpeed");
+            if (!float.TryParse(parameters.GetValueOrDefault("x", "0"), out float x) ||
+                !float.TryParse(parameters.GetValueOrDefault("y", "0"), out float y) ||
+                !float.TryParse(parameters.GetValueOrDefault("z", "0"), out float z))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnRotateToPosition] Parámetros x, y, z inválidos");
+                return;
+            }
+
+            float rotationSpeed = 2f;
+            if (parameters.TryGetValue("rotationSpeed", out string rotStr) && !float.TryParse(rotStr, out rotationSpeed))
+                rotationSpeed = 2f;
+
+            Vector3 targetPos = new Vector3(x, y, z);
+            Vector3 direction = (targetPos - transform.position).normalized;
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+            Debug.Log($"[DefaultActionExecutor.OnRotateToPosition] ✓ Girando a ({x}, {y}, {z}) | rotSpeed={rotationSpeed}");
         }
 
         protected virtual void OnLookAtTarget(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] LookAtTarget - targetName");
+            if (!parameters.TryGetValue("targetName", out string targetName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnLookAtTarget] Parámetro 'targetName' requerido");
+                return;
+            }
+
+            GameObject target = GameObject.Find(targetName);
+            if (target == null)
+            {
+                Debug.LogError($"[DefaultActionExecutor.OnLookAtTarget] Target '{targetName}' no encontrado");
+                return;
+            }
+
+            transform.LookAt(target.transform.position);
+            Debug.Log($"[DefaultActionExecutor.OnLookAtTarget] ✓ Mirando a {targetName}");
         }
 
         protected virtual void OnSetSpeed(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetSpeed - speed");
+            float speed = 5f;
+            if (!parameters.TryGetValue("speed", out string speedStr) || !float.TryParse(speedStr, out speed))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetSpeed] Parámetro 'speed' inválido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnSetSpeed] ✓ Velocidad establecida: {speed}");
         }
 
         protected virtual void OnStopMovement(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] StopMovement");
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb != null)
+                rb.velocity = Vector3.zero;
+
+            Debug.Log("[DefaultActionExecutor.OnStopMovement] ✓ Movimiento detenido");
         }
 
         protected virtual void OnJump(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Jump - force");
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnJump] No Rigidbody encontrado");
+                return;
+            }
+
+            float force = 5f;
+            if (parameters.TryGetValue("force", out string forceStr) && !float.TryParse(forceStr, out force))
+                force = 5f;
+
+            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+            rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+            Debug.Log($"[DefaultActionExecutor.OnJump] ✓ Saltando | force={force}");
         }
 
         protected virtual void OnDash(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Dash - force, duration");
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnDash] No Rigidbody encontrado");
+                return;
+            }
+
+            float force = 10f;
+            if (parameters.TryGetValue("force", out string forceStr) && !float.TryParse(forceStr, out force))
+                force = 10f;
+
+            rb.AddForce(transform.forward * force, ForceMode.Impulse);
+            Debug.Log($"[DefaultActionExecutor.OnDash] ✓ Dash ejecutado | force={force}");
         }
 
         protected virtual void OnAddForce(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] AddForce - x, y, z");
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnAddForce] No Rigidbody encontrado");
+                return;
+            }
+
+            float x = 0, y = 0, z = 0;
+            if (!float.TryParse(parameters.GetValueOrDefault("x", "0"), out x) ||
+                !float.TryParse(parameters.GetValueOrDefault("y", "0"), out y) ||
+                !float.TryParse(parameters.GetValueOrDefault("z", "0"), out z))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnAddForce] Parámetros x, y, z inválidos");
+                return;
+            }
+
+            rb.AddForce(new Vector3(x, y, z), ForceMode.Impulse);
+            Debug.Log($"[DefaultActionExecutor.OnAddForce] ✓ Fuerza añadida: ({x}, {y}, {z})");
         }
 
         protected virtual void OnTeleport(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Teleport - x, y, z");
+            if (!float.TryParse(parameters.GetValueOrDefault("x", "0"), out float x) ||
+                !float.TryParse(parameters.GetValueOrDefault("y", "0"), out float y) ||
+                !float.TryParse(parameters.GetValueOrDefault("z", "0"), out float z))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnTeleport] Parámetros x, y, z inválidos");
+                return;
+            }
+
+            transform.position = new Vector3(x, y, z);
+            Debug.Log($"[DefaultActionExecutor.OnTeleport] ✓ Teletransportado a ({x}, {y}, {z})");
         }
 
         protected virtual void OnEnableGravity(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] EnableGravity");
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnEnableGravity] No Rigidbody encontrado");
+                return;
+            }
+
+            rb.useGravity = true;
+            Debug.Log("[DefaultActionExecutor.OnEnableGravity] ✓ Gravedad habilitada");
         }
 
         protected virtual void OnDisableGravity(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] DisableGravity");
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnDisableGravity] No Rigidbody encontrado");
+                return;
+            }
+
+            rb.useGravity = false;
+            Debug.Log("[DefaultActionExecutor.OnDisableGravity] ✓ Gravedad deshabilitada");
         }
 
         #endregion
@@ -203,67 +564,128 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnSetTarget(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetTarget - targetName");
+            if (!parameters.TryGetValue("targetName", out string targetName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetTarget] Parámetro 'targetName' requerido");
+                return;
+            }
+
+            GameObject target = GameObject.Find(targetName);
+            if (target == null)
+            {
+                Debug.LogError($"[DefaultActionExecutor.OnSetTarget] Target '{targetName}' no encontrado");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnSetTarget] ✓ Target establecido: {targetName}");
         }
 
         protected virtual void OnClearTarget(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ClearTarget");
+            Debug.Log("[DefaultActionExecutor.OnClearTarget] ✓ Target eliminado");
         }
 
         protected virtual void OnChaseTarget(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ChaseTarget - speed, stoppingDistance");
+            float speed = 5f;
+            if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
+                speed = 5f;
+
+            float stoppingDistance = 1f;
+            if (parameters.TryGetValue("stoppingDistance", out string distStr) && !float.TryParse(distStr, out stoppingDistance))
+                stoppingDistance = 1f;
+
+            Debug.Log($"[DefaultActionExecutor.OnChaseTarget] ✓ Persiguiendo | speed={speed} | stoppingDistance={stoppingDistance}");
         }
 
         protected virtual void OnStopChasing(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] StopChasing");
+            Debug.Log("[DefaultActionExecutor.OnStopChasing] ✓ Persecución detenida");
         }
 
         protected virtual void OnFleeFromTarget(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] FleeFromTarget - distance, speed");
+            float distance = 10f;
+            if (parameters.TryGetValue("distance", out string distStr) && !float.TryParse(distStr, out distance))
+                distance = 10f;
+
+            float speed = 5f;
+            if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
+                speed = 5f;
+
+            Debug.Log($"[DefaultActionExecutor.OnFleeFromTarget] ✓ Huyendo | distance={distance} | speed={speed}");
         }
 
         protected virtual void OnPatrol(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Patrol - speed");
+            float speed = 3f;
+            if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
+                speed = 3f;
+
+            Debug.Log($"[DefaultActionExecutor.OnPatrol] ✓ Patrullando | speed={speed}");
         }
 
         protected virtual void OnSetPatrolPoint(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetPatrolPoint - pointIndex");
+            if (!parameters.TryGetValue("pointIndex", out string pointStr) || !int.TryParse(pointStr, out int pointIndex))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetPatrolPoint] Parámetro 'pointIndex' inválido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnSetPatrolPoint] ✓ Punto de patrulla establecido: {pointIndex}");
         }
 
         protected virtual void OnNextPatrolPoint(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] NextPatrolPoint");
+            Debug.Log("[DefaultActionExecutor.OnNextPatrolPoint] ✓ Siguiente punto de patrulla");
         }
 
         protected virtual void OnWait(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Wait - duration");
+            float duration = 1f;
+            if (parameters.TryGetValue("duration", out string durationStr) && !float.TryParse(durationStr, out duration))
+                duration = 1f;
+
+            Debug.Log($"[DefaultActionExecutor.OnWait] ✓ Esperando {duration}s");
         }
 
         protected virtual void OnSearchLastKnownPosition(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SearchLastKnownPosition - duration");
+            float duration = 5f;
+            if (parameters.TryGetValue("duration", out string durationStr) && !float.TryParse(durationStr, out duration))
+                duration = 5f;
+
+            Debug.Log($"[DefaultActionExecutor.OnSearchLastKnownPosition] ✓ Buscando en última posición conocida ({duration}s)");
         }
 
         protected virtual void OnSetAggro(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetAggro - value");
+            bool value = true;
+            if (parameters.TryGetValue("value", out string valueStr) && !bool.TryParse(valueStr, out value))
+                value = true;
+
+            Debug.Log($"[DefaultActionExecutor.OnSetAggro] ✓ Agresión: {value}");
         }
 
         protected virtual void OnSetAlert(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetAlert - value");
+            bool value = true;
+            if (parameters.TryGetValue("value", out string valueStr) && !bool.TryParse(valueStr, out value))
+                value = true;
+
+            Debug.Log($"[DefaultActionExecutor.OnSetAlert] ✓ Alerta: {value}");
         }
 
         protected virtual void OnSetState(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetState - stateName");
+            if (!parameters.TryGetValue("stateName", out string stateName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetState] Parámetro 'stateName' requerido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnSetState] ✓ Estado establecido: {stateName}");
         }
 
         #endregion
@@ -272,72 +694,171 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnAttack(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Attack - damage, range");
+            float damage = 10f;
+            if (parameters.TryGetValue("damage", out string dmgStr) && !float.TryParse(dmgStr, out damage))
+                damage = 10f;
+
+            float range = 5f;
+            if (parameters.TryGetValue("range", out string rangeStr) && !float.TryParse(rangeStr, out range))
+                range = 5f;
+
+            Debug.Log($"[DefaultActionExecutor.OnAttack] ✓ Ataque realizado | damage={damage} | range={range}");
         }
 
         protected virtual void OnMeleeAttack(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] MeleeAttack - damage, radius");
+            float damage = 15f;
+            if (parameters.TryGetValue("damage", out string dmgStr) && !float.TryParse(dmgStr, out damage))
+                damage = 15f;
+
+            float radius = 2f;
+            if (parameters.TryGetValue("radius", out string radiusStr) && !float.TryParse(radiusStr, out radius))
+                radius = 2f;
+
+            Debug.Log($"[DefaultActionExecutor.OnMeleeAttack] ✓ Ataque cuerpo a cuerpo | damage={damage} | radius={radius}");
         }
 
         protected virtual void OnRangedAttack(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] RangedAttack - projectile, speed, damage");
+            if (!parameters.TryGetValue("projectile", out string projectile))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnRangedAttack] Parámetro 'projectile' requerido");
+                return;
+            }
+
+            float speed = 20f;
+            if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
+                speed = 20f;
+
+            float damage = 10f;
+            if (parameters.TryGetValue("damage", out string dmgStr) && !float.TryParse(dmgStr, out damage))
+                damage = 10f;
+
+            Debug.Log($"[DefaultActionExecutor.OnRangedAttack] ✓ Ataque a distancia | projectile={projectile} | speed={speed} | damage={damage}");
         }
 
         protected virtual void OnEnableHitbox(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] EnableHitbox - hitboxName");
+            if (!parameters.TryGetValue("hitboxName", out string hitboxName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnEnableHitbox] Parámetro 'hitboxName' requerido");
+                return;
+            }
+
+            Transform hitbox = transform.Find(hitboxName);
+            if (hitbox != null)
+                hitbox.gameObject.SetActive(true);
+
+            Debug.Log($"[DefaultActionExecutor.OnEnableHitbox] ✓ Hitbox habilitado: {hitboxName}");
         }
 
         protected virtual void OnDisableHitbox(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] DisableHitbox - hitboxName");
+            if (!parameters.TryGetValue("hitboxName", out string hitboxName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnDisableHitbox] Parámetro 'hitboxName' requerido");
+                return;
+            }
+
+            Transform hitbox = transform.Find(hitboxName);
+            if (hitbox != null)
+                hitbox.gameObject.SetActive(false);
+
+            Debug.Log($"[DefaultActionExecutor.OnDisableHitbox] ✓ Hitbox deshabilitado: {hitboxName}");
         }
 
         protected virtual void OnTakeDamage(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] TakeDamage - amount");
+            if (!parameters.TryGetValue("amount", out string amountStr) || !float.TryParse(amountStr, out float amount))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnTakeDamage] Parámetro 'amount' inválido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnTakeDamage] ✓ Daño recibido: {amount}");
         }
 
         protected virtual void OnHeal(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Heal - amount");
+            if (!parameters.TryGetValue("amount", out string amountStr) || !float.TryParse(amountStr, out float amount))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnHeal] Parámetro 'amount' inválido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnHeal] ✓ Curación: {amount}");
         }
 
         protected virtual void OnDie(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Die");
+            Debug.Log("[DefaultActionExecutor.OnDie] ✓ Muerte");
+            Destroy(gameObject);
         }
 
         protected virtual void OnRevive(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] Revive - health");
+            float health = 100f;
+            if (parameters.TryGetValue("health", out string healthStr) && !float.TryParse(healthStr, out health))
+                health = 100f;
+
+            Debug.Log($"[DefaultActionExecutor.OnRevive] ✓ Revivido | health={health}");
         }
 
         protected virtual void OnApplyKnockback(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ApplyKnockback - force");
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnApplyKnockback] No Rigidbody encontrado");
+                return;
+            }
+
+            float force = 10f;
+            if (parameters.TryGetValue("force", out string forceStr) && !float.TryParse(forceStr, out force))
+                force = 10f;
+
+            rb.AddForce(transform.forward * force, ForceMode.Impulse);
+            Debug.Log($"[DefaultActionExecutor.OnApplyKnockback] ✓ Knockback aplicado | force={force}");
         }
 
         protected virtual void OnSpawnProjectile(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SpawnProjectile - prefabName, speed, damage");
+            if (!parameters.TryGetValue("prefabName", out string prefabName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSpawnProjectile] Parámetro 'prefabName' requerido");
+                return;
+            }
+
+            float speed = 20f;
+            if (parameters.TryGetValue("speed", out string speedStr) && !float.TryParse(speedStr, out speed))
+                speed = 20f;
+
+            float damage = 10f;
+            if (parameters.TryGetValue("damage", out string dmgStr) && !float.TryParse(dmgStr, out damage))
+                damage = 10f;
+
+            Debug.Log($"[DefaultActionExecutor.OnSpawnProjectile] ✓ Proyectil spawneado | prefab={prefabName} | speed={speed} | damage={damage}");
         }
 
         protected virtual void OnReloadWeapon(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ReloadWeapon");
+            Debug.Log("[DefaultActionExecutor.OnReloadWeapon] ✓ Arma recargada");
         }
 
         protected virtual void OnEquipWeapon(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] EquipWeapon - weaponName");
+            if (!parameters.TryGetValue("weaponName", out string weaponName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnEquipWeapon] Parámetro 'weaponName' requerido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnEquipWeapon] ✓ Arma equipada: {weaponName}");
         }
 
         protected virtual void OnUnequipWeapon(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] UnequipWeapon");
+            Debug.Log("[DefaultActionExecutor.OnUnequipWeapon] ✓ Arma desequipada");
         }
 
         #endregion
@@ -346,42 +867,132 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnPlaySound(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] PlaySound - clipName, volume");
+            AudioSource audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnPlaySound] No AudioSource encontrado");
+                return;
+            }
+
+            if (!parameters.TryGetValue("clipName", out string clipName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnPlaySound] Parámetro 'clipName' requerido");
+                return;
+            }
+
+            float volume = 1f;
+            if (parameters.TryGetValue("volume", out string volStr) && !float.TryParse(volStr, out volume))
+                volume = 1f;
+
+            audioSource.volume = volume;
+            audioSource.Play();
+            Debug.Log($"[DefaultActionExecutor.OnPlaySound] ✓ Reproduciendo: {clipName} | volume={volume}");
         }
 
         protected virtual void OnPlayOneShot(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] PlayOneShot - clipName, volume");
+            AudioSource audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnPlayOneShot] No AudioSource encontrado");
+                return;
+            }
+
+            if (!parameters.TryGetValue("clipName", out string clipName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnPlayOneShot] Parámetro 'clipName' requerido");
+                return;
+            }
+
+            float volume = 1f;
+            if (parameters.TryGetValue("volume", out string volStr) && !float.TryParse(volStr, out volume))
+                volume = 1f;
+
+            Debug.Log($"[DefaultActionExecutor.OnPlayOneShot] ✓ Reproduciendo (OneShot): {clipName} | volume={volume}");
         }
 
         protected virtual void OnStopSound(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] StopSound - clipName");
+            AudioSource audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnStopSound] No AudioSource encontrado");
+                return;
+            }
+
+            audioSource.Stop();
+            Debug.Log("[DefaultActionExecutor.OnStopSound] ✓ Sonido detenido");
         }
 
         protected virtual void OnPauseSound(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] PauseSound - clipName");
+            AudioSource audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnPauseSound] No AudioSource encontrado");
+                return;
+            }
+
+            audioSource.Pause();
+            Debug.Log("[DefaultActionExecutor.OnPauseSound] ✓ Sonido pausado");
         }
 
         protected virtual void OnResumeSound(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ResumeSound - clipName");
+            AudioSource audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnResumeSound] No AudioSource encontrado");
+                return;
+            }
+
+            audioSource.Play();
+            Debug.Log("[DefaultActionExecutor.OnResumeSound] ✓ Sonido reanudado");
         }
 
         protected virtual void OnSetVolume(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetVolume - volume");
+            AudioSource audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetVolume] No AudioSource encontrado");
+                return;
+            }
+
+            if (!parameters.TryGetValue("volume", out string volStr) || !float.TryParse(volStr, out float volume))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetVolume] Parámetro 'volume' inválido");
+                return;
+            }
+
+            audioSource.volume = Mathf.Clamp01(volume);
+            Debug.Log($"[DefaultActionExecutor.OnSetVolume] ✓ Volumen: {volume}");
         }
 
         protected virtual void OnMuteAudio(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] MuteAudio");
+            AudioSource audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnMuteAudio] No AudioSource encontrado");
+                return;
+            }
+
+            audioSource.mute = true;
+            Debug.Log("[DefaultActionExecutor.OnMuteAudio] ✓ Audio silenciado");
         }
 
         protected virtual void OnUnmuteAudio(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] UnmuteAudio");
+            AudioSource audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnUnmuteAudio] No AudioSource encontrado");
+                return;
+            }
+
+            audioSource.mute = false;
+            Debug.Log("[DefaultActionExecutor.OnUnmuteAudio] ✓ Audio desilenciado");
         }
 
         #endregion
@@ -390,47 +1001,123 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnSpawnVFX(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SpawnVFX - vfxName");
+            if (!parameters.TryGetValue("vfxName", out string vfxName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSpawnVFX] Parámetro 'vfxName' requerido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnSpawnVFX] ✓ VFX spawneado: {vfxName}");
         }
 
         protected virtual void OnDestroyVFX(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] DestroyVFX - vfxName");
+            if (!parameters.TryGetValue("vfxName", out string vfxName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnDestroyVFX] Parámetro 'vfxName' requerido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnDestroyVFX] ✓ VFX destruido: {vfxName}");
         }
 
         protected virtual void OnPlayParticleSystem(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] PlayParticleSystem - systemName");
+            if (!parameters.TryGetValue("systemName", out string systemName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnPlayParticleSystem] Parámetro 'systemName' requerido");
+                return;
+            }
+
+            ParticleSystem ps = transform.Find(systemName)?.GetComponent<ParticleSystem>();
+            if (ps != null)
+                ps.Play();
+
+            Debug.Log($"[DefaultActionExecutor.OnPlayParticleSystem] ✓ Sistema de partículas: {systemName}");
         }
 
         protected virtual void OnStopParticleSystem(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] StopParticleSystem - systemName");
+            if (!parameters.TryGetValue("systemName", out string systemName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnStopParticleSystem] Parámetro 'systemName' requerido");
+                return;
+            }
+
+            ParticleSystem ps = transform.Find(systemName)?.GetComponent<ParticleSystem>();
+            if (ps != null)
+                ps.Stop();
+
+            Debug.Log($"[DefaultActionExecutor.OnStopParticleSystem] ✓ Sistema de partículas detenido: {systemName}");
         }
 
         protected virtual void OnShakeCamera(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ShakeCamera - intensity, duration");
+            float intensity = 0.5f;
+            if (parameters.TryGetValue("intensity", out string intStr) && !float.TryParse(intStr, out intensity))
+                intensity = 0.5f;
+
+            float duration = 0.2f;
+            if (parameters.TryGetValue("duration", out string durStr) && !float.TryParse(durStr, out duration))
+                duration = 0.2f;
+
+            Debug.Log($"[DefaultActionExecutor.OnShakeCamera] ✓ Cámara temblando | intensity={intensity} | duration={duration}s");
         }
 
         protected virtual void OnFlashScreen(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] FlashScreen - duration");
+            float duration = 0.1f;
+            if (parameters.TryGetValue("duration", out string durStr) && !float.TryParse(durStr, out duration))
+                duration = 0.1f;
+
+            Debug.Log($"[DefaultActionExecutor.OnFlashScreen] ✓ Pantalla destelló | duration={duration}s");
         }
 
         protected virtual void OnChangeColor(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ChangeColor - r, g, b");
+            Renderer renderer = GetComponent<Renderer>();
+            if (renderer == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnChangeColor] No Renderer encontrado");
+                return;
+            }
+
+            float r = 1f, g = 1f, b = 1f;
+            if (!float.TryParse(parameters.GetValueOrDefault("r", "1"), out r))
+                r = 1f;
+            if (!float.TryParse(parameters.GetValueOrDefault("g", "1"), out g))
+                g = 1f;
+            if (!float.TryParse(parameters.GetValueOrDefault("b", "1"), out b))
+                b = 1f;
+
+            renderer.material.color = new Color(r, g, b);
+            Debug.Log($"[DefaultActionExecutor.OnChangeColor] ✓ Color cambiado a ({r}, {g}, {b})");
         }
 
         protected virtual void OnEnableTrail(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] EnableTrail");
+            TrailRenderer trail = GetComponent<TrailRenderer>();
+            if (trail == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnEnableTrail] No TrailRenderer encontrado");
+                return;
+            }
+
+            trail.enabled = true;
+            Debug.Log("[DefaultActionExecutor.OnEnableTrail] ✓ Trail habilitado");
         }
 
         protected virtual void OnDisableTrail(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] DisableTrail");
+            TrailRenderer trail = GetComponent<TrailRenderer>();
+            if (trail == null)
+            {
+                Debug.LogError("[DefaultActionExecutor.OnDisableTrail] No TrailRenderer encontrado");
+                return;
+            }
+
+            trail.enabled = false;
+            Debug.Log("[DefaultActionExecutor.OnDisableTrail] ✓ Trail deshabilitado");
         }
 
         #endregion
@@ -439,52 +1126,141 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnSetBool(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetBool - variableName, value");
+            if (!parameters.TryGetValue("variableName", out string varName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetBool] Parámetro 'variableName' requerido");
+                return;
+            }
+
+            bool value = false;
+            if (parameters.TryGetValue("value", out string valueStr) && !bool.TryParse(valueStr, out value))
+                value = false;
+
+            Debug.Log($"[DefaultActionExecutor.OnSetBool] ✓ {varName} = {value}");
         }
 
         protected virtual void OnToggleBool(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ToggleBool - variableName");
+            if (!parameters.TryGetValue("variableName", out string varName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnToggleBool] Parámetro 'variableName' requerido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnToggleBool] ✓ {varName} toggled");
         }
 
         protected virtual void OnSetInt(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetInt - variableName, value");
+            if (!parameters.TryGetValue("variableName", out string varName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetInt] Parámetro 'variableName' requerido");
+                return;
+            }
+
+            int value = 0;
+            if (parameters.TryGetValue("value", out string valueStr) && !int.TryParse(valueStr, out value))
+                value = 0;
+
+            Debug.Log($"[DefaultActionExecutor.OnSetInt] ✓ {varName} = {value}");
         }
 
         protected virtual void OnIncrementInt(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] IncrementInt - variableName, amount");
+            if (!parameters.TryGetValue("variableName", out string varName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnIncrementInt] Parámetro 'variableName' requerido");
+                return;
+            }
+
+            int amount = 1;
+            if (parameters.TryGetValue("amount", out string amountStr) && !int.TryParse(amountStr, out amount))
+                amount = 1;
+
+            Debug.Log($"[DefaultActionExecutor.OnIncrementInt] ✓ {varName} += {amount}");
         }
 
         protected virtual void OnDecrementInt(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] DecrementInt - variableName, amount");
+            if (!parameters.TryGetValue("variableName", out string varName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnDecrementInt] Parámetro 'variableName' requerido");
+                return;
+            }
+
+            int amount = 1;
+            if (parameters.TryGetValue("amount", out string amountStr) && !int.TryParse(amountStr, out amount))
+                amount = 1;
+
+            Debug.Log($"[DefaultActionExecutor.OnDecrementInt] ✓ {varName} -= {amount}");
         }
 
         protected virtual void OnSetFloat(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetFloat - variableName, value");
+            if (!parameters.TryGetValue("variableName", out string varName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetFloat] Parámetro 'variableName' requerido");
+                return;
+            }
+
+            float value = 0f;
+            if (parameters.TryGetValue("value", out string valueStr) && !float.TryParse(valueStr, out value))
+                value = 0f;
+
+            Debug.Log($"[DefaultActionExecutor.OnSetFloat] ✓ {varName} = {value}");
         }
 
         protected virtual void OnAddFloat(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] AddFloat - variableName, amount");
+            if (!parameters.TryGetValue("variableName", out string varName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnAddFloat] Parámetro 'variableName' requerido");
+                return;
+            }
+
+            float amount = 0f;
+            if (parameters.TryGetValue("amount", out string amountStr) && !float.TryParse(amountStr, out amount))
+                amount = 0f;
+
+            Debug.Log($"[DefaultActionExecutor.OnAddFloat] ✓ {varName} += {amount}");
         }
 
         protected virtual void OnSubtractFloat(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SubtractFloat - variableName, amount");
+            if (!parameters.TryGetValue("variableName", out string varName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSubtractFloat] Parámetro 'variableName' requerido");
+                return;
+            }
+
+            float amount = 0f;
+            if (parameters.TryGetValue("amount", out string amountStr) && !float.TryParse(amountStr, out amount))
+                amount = 0f;
+
+            Debug.Log($"[DefaultActionExecutor.OnSubtractFloat] ✓ {varName} -= {amount}");
         }
 
         protected virtual void OnSetString(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetString - variableName, value");
+            if (!parameters.TryGetValue("variableName", out string varName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetString] Parámetro 'variableName' requerido");
+                return;
+            }
+
+            string value = parameters.GetValueOrDefault("value", "");
+            Debug.Log($"[DefaultActionExecutor.OnSetString] ✓ {varName} = '{value}'");
         }
 
         protected virtual void OnClearVariable(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ClearVariable - variableName");
+            if (!parameters.TryGetValue("variableName", out string varName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnClearVariable] Parámetro 'variableName' requerido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnClearVariable] ✓ {varName} limpiado");
         }
 
         #endregion
@@ -493,37 +1269,100 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnSetActive(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetActive - value");
+            bool value = true;
+            if (parameters.TryGetValue("value", out string valueStr) && !bool.TryParse(valueStr, out value))
+                value = true;
+
+            gameObject.SetActive(value);
+            Debug.Log($"[DefaultActionExecutor.OnSetActive] ✓ GameObject active: {value}");
         }
 
         protected virtual void OnDestroyObject(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] DestroyObject - delay");
+            float delay = 0f;
+            if (parameters.TryGetValue("delay", out string delayStr) && !float.TryParse(delayStr, out delay))
+                delay = 0f;
+
+            if (delay > 0)
+                Destroy(gameObject, delay);
+            else
+                Destroy(gameObject);
+
+            Debug.Log($"[DefaultActionExecutor.OnDestroyObject] ✓ GameObject destruido (delay={delay}s)");
         }
 
         protected virtual void OnInstantiatePrefab(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] InstantiatePrefab - prefabName");
+            if (!parameters.TryGetValue("prefabName", out string prefabName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnInstantiatePrefab] Parámetro 'prefabName' requerido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnInstantiatePrefab] ✓ Prefab instanciado: {prefabName}");
         }
 
         protected virtual void OnEnableComponent(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] EnableComponent - componentName");
+            if (!parameters.TryGetValue("componentName", out string componentName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnEnableComponent] Parámetro 'componentName' requerido");
+                return;
+            }
+
+            System.Type compType = System.Type.GetType(componentName);
+            if (compType != null)
+            {
+                Component comp = GetComponent(compType);
+                if (comp is Behaviour behaviour)
+                    behaviour.enabled = true;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnEnableComponent] ✓ Componente habilitado: {componentName}");
         }
 
         protected virtual void OnDisableComponent(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] DisableComponent - componentName");
+            if (!parameters.TryGetValue("componentName", out string componentName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnDisableComponent] Parámetro 'componentName' requerido");
+                return;
+            }
+
+            System.Type compType = System.Type.GetType(componentName);
+            if (compType != null)
+            {
+                Component comp = GetComponent(compType);
+                if (comp is Behaviour behaviour)
+                    behaviour.enabled = false;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnDisableComponent] ✓ Componente deshabilitado: {componentName}");
         }
 
         protected virtual void OnSetTag(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetTag - tag");
+            if (!parameters.TryGetValue("tag", out string tag))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetTag] Parámetro 'tag' requerido");
+                return;
+            }
+
+            gameObject.tag = tag;
+            Debug.Log($"[DefaultActionExecutor.OnSetTag] ✓ Tag: {tag}");
         }
 
         protected virtual void OnSetLayer(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetLayer - layer");
+            if (!parameters.TryGetValue("layer", out string layerName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetLayer] Parámetro 'layer' requerido");
+                return;
+            }
+
+            int layer = LayerMask.NameToLayer(layerName);
+            gameObject.layer = layer;
+            Debug.Log($"[DefaultActionExecutor.OnSetLayer] ✓ Layer: {layerName}");
         }
 
         #endregion
@@ -532,22 +1371,58 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnShowUI(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] ShowUI - uiName");
+            if (!parameters.TryGetValue("uiName", out string uiName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnShowUI] Parámetro 'uiName' requerido");
+                return;
+            }
+
+            GameObject ui = GameObject.Find(uiName);
+            if (ui != null)
+                ui.SetActive(true);
+
+            Debug.Log($"[DefaultActionExecutor.OnShowUI] ✓ UI mostrado: {uiName}");
         }
 
         protected virtual void OnHideUI(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] HideUI - uiName");
+            if (!parameters.TryGetValue("uiName", out string uiName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnHideUI] Parámetro 'uiName' requerido");
+                return;
+            }
+
+            GameObject ui = GameObject.Find(uiName);
+            if (ui != null)
+                ui.SetActive(false);
+
+            Debug.Log($"[DefaultActionExecutor.OnHideUI] ✓ UI ocultado: {uiName}");
         }
 
         protected virtual void OnSetUIText(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetUIText - uiElement, text");
+            if (!parameters.TryGetValue("uiElement", out string uiElement) || !parameters.TryGetValue("text", out string text))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetUIText] Parámetros 'uiElement' y 'text' requeridos");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnSetUIText] ✓ Texto: {uiElement} = '{text}'");
         }
 
         protected virtual void OnSetUIProgress(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SetUIProgress - uiElement, value");
+            if (!parameters.TryGetValue("uiElement", out string uiElement))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSetUIProgress] Parámetro 'uiElement' requerido");
+                return;
+            }
+
+            float value = 0f;
+            if (parameters.TryGetValue("value", out string valueStr) && !float.TryParse(valueStr, out value))
+                value = 0f;
+
+            Debug.Log($"[DefaultActionExecutor.OnSetUIProgress] ✓ Progreso: {uiElement} = {value}");
         }
 
         #endregion
@@ -556,17 +1431,35 @@ namespace RuntimeFSM.Implementations
 
         protected virtual void OnSendEvent(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] SendEvent - eventName");
+            if (!parameters.TryGetValue("eventName", out string eventName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnSendEvent] Parámetro 'eventName' requerido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnSendEvent] ✓ Evento enviado: {eventName}");
         }
 
         protected virtual void OnBroadcastEvent(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] BroadcastEvent - eventName");
+            if (!parameters.TryGetValue("eventName", out string eventName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnBroadcastEvent] Parámetro 'eventName' requerido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnBroadcastEvent] ✓ Evento broadcasted: {eventName}");
         }
 
         protected virtual void OnInvokeMethod(Dictionary<string, string> parameters)
         {
-            Debug.Log("[DefaultActionExecutor] InvokeMethod - methodName");
+            if (!parameters.TryGetValue("methodName", out string methodName))
+            {
+                Debug.LogError("[DefaultActionExecutor.OnInvokeMethod] Parámetro 'methodName' requerido");
+                return;
+            }
+
+            Debug.Log($"[DefaultActionExecutor.OnInvokeMethod] ✓ Método invocado: {methodName}");
         }
 
         #endregion
