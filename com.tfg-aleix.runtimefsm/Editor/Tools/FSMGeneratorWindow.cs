@@ -351,9 +351,10 @@ public class {className} : DefaultActionExecutor
 
         private string GenerateConditionEvaluatorCode(string className)
         {
-            return $@"using UnityEngine;
+            string code = @"using UnityEngine;
 using RuntimeFSM.Data;
 using RuntimeFSM.Utils;
+using System;
 
 /// <summary>
 /// Condition Evaluator personalizado.
@@ -361,9 +362,12 @@ using RuntimeFSM.Utils;
 /// Este archivo fue generado por FSMGeneratorWindow.
 /// Solo necesitas implementar EvaluateSimpleCondition() para tus variables específicas.
 /// Las condiciones lógicas (AND, OR, NOT) se manejan automáticamente en ConditionEvaluatorBase.
+///
+/// IMPORTANTE: Si una variable usada en una condición no está implementada en GetVariableValue(),
+/// se lanzará una excepción explícita. No hay valores por defecto silenciosos.
 /// </summary>
-public class {className} : ConditionEvaluatorBase
-{{
+public class " + className + @" : ConditionEvaluatorBase
+{
     // PASO 1: Define tus variables que usarás en las condiciones del FSM
     [SerializeField] private float distanceToPlayer = 0f;
     [SerializeField] private bool isAlerted = false;
@@ -371,61 +375,96 @@ public class {className} : ConditionEvaluatorBase
 
     // PASO 2: Implement EvaluateSimpleCondition para tu lógica específica
     protected override bool EvaluateSimpleCondition(ConditionDefinition condition)
-    {{
-        var operatorType = ConditionParser.ParseConditionOperator(condition.@operator);
+    {
+        try
+        {
+            var operatorType = ConditionParser.ParseConditionOperator(condition.@operator);
 
-        // Obtén el valor actual de tu variable
-        float currentValue = GetVariableValue(condition.name);
-        float targetValue = float.Parse(condition.value);
+            // Obtén el valor actual de tu variable
+            float currentValue = GetVariableValue(condition.name);
 
-        // Evalúa basado en el operador
-        return operatorType switch
-        {{
-            ConditionOperator.GreaterThan => currentValue > targetValue,
-            ConditionOperator.LessThan => currentValue < targetValue,
-            ConditionOperator.GreaterThanOrEqual => currentValue >= targetValue,
-            ConditionOperator.LessThanOrEqual => currentValue <= targetValue,
-            ConditionOperator.Equals => Mathf.Approximately(currentValue, targetValue),
-            ConditionOperator.NotEquals => !Mathf.Approximately(currentValue, targetValue),
-            ConditionOperator.Contains => condition.value.Contains(GetStringVariableValue(condition.name)),
-            ConditionOperator.NotContains => !condition.value.Contains(GetStringVariableValue(condition.name)),
-            _ => false
-        }};
-    }}
+            // Parsear valor objetivo con manejo de errores
+            if (!float.TryParse(condition.value, out float targetValue))
+            {
+                ConditionEvaluatorErrorHandler.LogValueParsingError(
+                    condition.name, ""value"", condition.value, ""float"", gameObject);
+                return false;
+            }
+
+            // Evalúa basado en el operador
+            return operatorType switch
+            {
+                ConditionOperator.GreaterThan => currentValue > targetValue,
+                ConditionOperator.LessThan => currentValue < targetValue,
+                ConditionOperator.GreaterThanOrEqual => currentValue >= targetValue,
+                ConditionOperator.LessThanOrEqual => currentValue <= targetValue,
+                ConditionOperator.Equals => Mathf.Approximately(currentValue, targetValue),
+                ConditionOperator.NotEquals => !Mathf.Approximately(currentValue, targetValue),
+                ConditionOperator.Contains => condition.value.Contains(GetStringVariableValue(condition.name)),
+                ConditionOperator.NotContains => !condition.value.Contains(GetStringVariableValue(condition.name)),
+                _ => false
+            };
+        }
+        catch (KeyNotFoundException ex)
+        {
+            ConditionEvaluatorErrorHandler.LogVariableNotFound(ex.Message, gameObject);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            ConditionEvaluatorErrorHandler.LogEvaluationException(condition.name, ex, gameObject);
+            return false;
+        }
+    }
 
     // PASO 3: Implementa GetVariableValue para mapear nombres a tus variables
+    // IMPORTANTE: Lanza KeyNotFoundException si la variable no existe
     private float GetVariableValue(string variableName)
-    {{
+    {
         return variableName.ToLower() switch
-        {{
+        {
             ""distancetoplayer"" => distanceToPlayer,
             ""health"" => health,
-            _ => 0f
-        }};
-    }}
+            ""isalerted"" => isAlerted ? 1f : 0f,
+            // Agrega más variables aquí
+            _ => throw new KeyNotFoundException(
+                ""Variable '"" + variableName + ""' no está implementada en GetVariableValue(). "" +
+                ""Añade el caso en el switch: '"" + variableName.ToLower() + ""' => tuVariable"")
+        };
+    }
 
     // Para variables de texto (contains, not_contains)
     private string GetStringVariableValue(string variableName)
-    {{
+    {
         return variableName.ToLower() switch
-        {{
+        {
             ""name"" => gameObject.name,
             ""tag"" => gameObject.tag,
-            _ => """"
-        }};
-    }}
+            // Agrega más variables de texto aquí
+            _ => throw new KeyNotFoundException(
+                ""Variable string '"" + variableName + ""' no está implementada en GetStringVariableValue()"")
+        };
+    }
 
     // PASO 4 (Opcional): Implementa métodos Update si necesitas actualizar variables cada frame
     private void Update()
-    {{
+    {
         // Ejemplo: actualizar distancia al jugador
-        if (GameObject.FindGameObjectWithTag(""Player"") is GameObject player)
-        {{
-            distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
-        }}
-    }}
-}}
+        try
+        {
+            if (GameObject.FindGameObjectWithTag(""Player"") is GameObject player)
+            {
+                distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError(""Error actualizando variables: "" + ex.Message, gameObject);
+        }
+    }
+}
 ";
+            return code;
         }
     }
 }
