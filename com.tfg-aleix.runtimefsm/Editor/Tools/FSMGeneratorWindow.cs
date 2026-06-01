@@ -457,7 +457,7 @@ public class " + className + @" : ConditionEvaluatorBase
         }
         catch (System.Exception ex)
         {
-            // Handle error silently
+            Debug.LogError(""Error actualizando variables: "" + ex.Message, gameObject);
         }
     }
 }

@@ -32,6 +32,7 @@ namespace RuntimeFSM.Examples
             // 2. Cargar definición del FSM
             if (_fsmDefinition == null)
             {
+                Debug.LogError("FSM Definition no asignado en el inspector");
                 return;
             }
 
@@ -40,6 +41,7 @@ namespace RuntimeFSM.Examples
             // 3. Inicializar FSM
             _fsm = new FSM(fsmDef, _actionExecutor, _conditions);
 
+            Debug.Log($"FSM '{fsmDef.name}' inicializado en estado: {_fsm.CurrentState.Id}");
         }
 
         private void Update()
@@ -90,6 +92,7 @@ namespace RuntimeFSM.Examples
             if (_animator != null)
             {
                 _animator.SetTrigger(animationName);
+                Debug.Log($"[NPC] Reproduciendo animación: {animationName}");
             }
         }
 
@@ -104,6 +107,7 @@ namespace RuntimeFSM.Examples
                 // Aquí podrías cargar un clip por nombre desde Resources
                 // AudioClip clip = Resources.Load<AudioClip>($"Sounds/{soundName}");
                 // _audioSource.PlayOneShot(clip);
+                Debug.Log($"[NPC] Reproduciendo sonido: {soundName}");
             }
         }
 
@@ -116,6 +120,7 @@ namespace RuntimeFSM.Examples
             if (!int.TryParse(damageStr, out int damage))
                 return;
 
+            Debug.Log($"[NPC] Causando {damage} de daño");
 
             // Encontrar al jugador y causarle daño
             if (GameObject.FindGameObjectWithTag("Player") is GameObject player)
@@ -128,12 +133,14 @@ namespace RuntimeFSM.Examples
         // Personalizar loot
         protected override void OnDropLoot(Dictionary<string, string> parameters)
         {
+            Debug.Log("[NPC] Soltando loot en la posición: " + transform.position);
             // Aquí generarías items de loot en la posición actual
         }
 
         // Personalizar monitoreo de salud
         protected override void OnMonitorHealth(Dictionary<string, string> parameters)
         {
+            Debug.Log("[NPC] Monitoreando salud");
             // Aquí podrías aplicar daño over-time, regeneración, etc.
         }
     }
@@ -176,6 +183,7 @@ namespace RuntimeFSM.Examples
             // Debug: mostrar evaluaciones interesantes
             if (condition.name == "distanceToPlayer")
             {
+                Debug.Log($"[NPC Conditions] Distance {_distanceToPlayer:F1} {condition.@operator} {condition.value} = {result}");
             }
 
             return result;

@@ -68,6 +68,7 @@ namespace RuntimeFSM.Examples
                 // Parsear el valor objetivo
                 if (!float.TryParse(condition.value, out float targetValue) && stringValue == null)
                 {
+                    Debug.LogWarning($"[ExampleConditionEvaluator] No se puede parsear valor: {condition.value}");
                     return false;
                 }
 
@@ -106,6 +107,7 @@ namespace RuntimeFSM.Examples
                                !stringValue.Contains(condition.value);
 
                     default:
+                        Debug.LogWarning($"[ExampleConditionEvaluator] Operador desconocido: {condition.@operator}");
                         return false;
                 }
             }
@@ -124,6 +126,7 @@ namespace RuntimeFSM.Examples
                         return _parent.health;
 
                     default:
+                        Debug.LogWarning($"[ExampleConditionEvaluator] Variable numérica desconocida: {variableName}");
                         return 0f;
                 }
             }

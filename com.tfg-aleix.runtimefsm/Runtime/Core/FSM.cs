@@ -197,6 +197,7 @@ namespace RuntimeFSM.Core
         {
             if (EnableLogging)
             {
+                UnityEngine.Debug.Log($"[FSM] {message}");
             }
         }
     }

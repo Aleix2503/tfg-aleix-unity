@@ -21,6 +21,7 @@ namespace RuntimeFSM.UnityIntegration
         {
             if (definition == null)
             {
+                Debug.LogError("FSM Definition is null.");
                 return;
             }
 
@@ -38,6 +39,7 @@ namespace RuntimeFSM.UnityIntegration
         {
             if (enableLogging)
             {
+                Debug.Log($"FSM State Changed → {newState}");
             }
         }
     }
