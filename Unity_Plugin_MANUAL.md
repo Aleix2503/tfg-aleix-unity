@@ -50,7 +50,7 @@ This method pulls the package directly from GitHub.
 2. Select **"Add package from git URL..."**
 3. Enter the GitHub repository URL:
    ```
-   https://github.com/yourusername/fsm-runtime-plugin.git
+   https://github.com/Aleix2503/tfg-aleix-unity.git?path=com.tfg-aleix.runtimefsm#main
    ```
 4. Click **Add**
 5. Unity will download and install the package (may take a moment)
