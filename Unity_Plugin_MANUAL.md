@@ -66,8 +66,8 @@ If you've cloned the repository locally:
 #### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/fsm-runtime-plugin.git
-cd fsm-runtime-plugin
+git clone https://github.com/Aleix2503/tfg-aleix-unity
+cd tfg-aleix-unity
 ```
 
 #### Step 2: Add to Your Project
