@@ -3,28 +3,30 @@ using RuntimeFSM.Data;
 namespace RuntimeFSM.Utilities
 {
     /// <summary>
-    /// Utilidad para parsear y validar definiciones de condiciones
+    /// Utility for parsing and validating condition definitions
     /// </summary>
     public static class ConditionParser
     {
         /// <summary>
-        /// Determina el tipo de condición basado en el string
+        /// Determines condition type based on string
         /// </summary>
         public static ConditionType ParseConditionType(string typeString)
         {
             if (string.IsNullOrEmpty(typeString))
                 return ConditionType.Simple;
 
-            return typeString.ToLower() switch
+            var lower = typeString.ToLower();
+            return lower switch
             {
                 "simple" => ConditionType.Simple,
                 "logical" => ConditionType.Logical,
+                "variablecompare" or "boolistrue" or "boolisfalse" => ConditionType.New,
                 _ => ConditionType.Simple
             };
         }
 
         /// <summary>
-        /// Parsea un operador lógico desde string
+        /// Parses a logical operator from string
         /// </summary>
         public static LogicalOperator ParseLogicalOperator(string operatorString)
         {
@@ -41,7 +43,7 @@ namespace RuntimeFSM.Utilities
         }
 
         /// <summary>
-        /// Parsea un operador de comparación desde string
+        /// Parses a comparison operator from string
         /// </summary>
         public static ConditionOperator ParseConditionOperator(string operatorString)
         {
@@ -63,7 +65,7 @@ namespace RuntimeFSM.Utilities
         }
 
         /// <summary>
-        /// Valida que una definición de condición sea válida
+        /// Validates that a condition definition is valid
         /// </summary>
         public static bool IsValid(ConditionDefinition condition)
         {
@@ -76,13 +78,14 @@ namespace RuntimeFSM.Utilities
             {
                 ConditionType.Simple => IsValidSimpleCondition(condition),
                 ConditionType.Logical => IsValidLogicalCondition(condition),
+                ConditionType.New => IsValidNewCondition(condition),
                 _ => false
             };
         }
 
         private static bool IsValidSimpleCondition(ConditionDefinition condition)
         {
-            // Una condición simple necesita: name, @operator, value
+            // Simple condition needs: name, @operator, value
             return !string.IsNullOrEmpty(condition.name) &&
                    !string.IsNullOrEmpty(condition.@operator) &&
                    !string.IsNullOrEmpty(condition.value);
@@ -90,21 +93,21 @@ namespace RuntimeFSM.Utilities
 
         private static bool IsValidLogicalCondition(ConditionDefinition condition)
         {
-            // Una condición lógica necesita: logicalOperator y conditions
+            // Logical condition needs: logicalOperator and conditions
             if (string.IsNullOrEmpty(condition.logicalOperator) || condition.conditions == null)
                 return false;
 
             var logicalOp = ParseLogicalOperator(condition.logicalOperator);
 
-            // NOT debe tener exactamente 1 condición
+            // NOT must have exactly 1 condition
             if (logicalOp == LogicalOperator.Not)
                 return condition.conditions.Count == 1 && IsValid(condition.conditions[0]);
 
-            // AND y OR deben tener al menos 2 condiciones
+            // AND and OR must have at least 2 conditions
             if (condition.conditions.Count < 2)
                 return false;
 
-            // Validar todas las sub-condiciones
+            // Validate all sub-conditions
             foreach (var subCondition in condition.conditions)
             {
                 if (!IsValid(subCondition))
@@ -112,6 +115,24 @@ namespace RuntimeFSM.Utilities
             }
 
             return true;
+        }
+
+        private static bool IsValidNewCondition(ConditionDefinition condition)
+        {
+            // New condition types need: type and params
+            if (condition.@params == null)
+                return false;
+
+            var type = condition.type.ToLower();
+
+            return type switch
+            {
+                "variablecompare" => !string.IsNullOrEmpty(condition.@params.variableName) &&
+                                    !string.IsNullOrEmpty(condition.@params.@operator) &&
+                                    !string.IsNullOrEmpty(condition.@params.value),
+                "boolistrue" or "boolisfalse" => !string.IsNullOrEmpty(condition.@params.variableName),
+                _ => false
+            };
         }
     }
 }

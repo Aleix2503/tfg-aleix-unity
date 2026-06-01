@@ -1,28 +1,40 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace RuntimeFSM.Data
 {
     [System.Serializable]
+    public class ConditionParams
+    {
+        public string variableName;
+        public string @operator;
+        public string value;
+    }
+
+    [System.Serializable]
     public class ConditionDefinition
     {
         /// <summary>
-        /// "simple" para condiciones simples, "logical" para condiciones lógicas (AND, OR, NOT)
+        /// Type of condition: "VariableCompare", "BoolIsTrue", "BoolIsFalse", "simple", "logical"
         /// </summary>
         public string type;
 
-        // Propiedades para condiciones simples
+        // Properties for new condition structure
+        public ConditionParams @params;
+
+        // Properties for simple conditions (legacy)
         public string name;
         public string @operator;
         public string value;
 
-        // Propiedades para condiciones lógicas
+        // Properties for logical conditions (legacy)
         /// <summary>
-        /// "AND", "OR", "NOT" (solo para type="logical")
+        /// "AND", "OR", "NOT" (only for type="logical")
         /// </summary>
         public string logicalOperator;
 
         /// <summary>
-        /// Sub-condiciones (solo para type="logical")
+        /// Sub-conditions (only for type="logical")
         /// </summary>
         public List<ConditionDefinition> conditions;
     }

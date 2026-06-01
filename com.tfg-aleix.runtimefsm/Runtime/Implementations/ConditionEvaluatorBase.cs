@@ -14,9 +14,9 @@ namespace RuntimeFSM.Utils
     public abstract class ConditionEvaluatorBase : MonoBehaviour, IConditionEvaluator
     {
         /// <summary>
-        /// Evalúa una definición de condición (simple o lógica)
-        /// Maneja la recursión automáticamente para condiciones lógicas
-        /// Incluye error handling robusto
+        /// Evaluates a condition definition (simple, logical, or new types like VariableCompare, BoolIsTrue, BoolIsFalse)
+        /// Handles recursion automatically for logical conditions
+        /// Includes robust error handling
         /// </summary>
         public bool Evaluate(ConditionDefinition condition)
         {
@@ -24,6 +24,16 @@ namespace RuntimeFSM.Utils
             {
                 if (condition == null)
                     return true;
+
+                // Check for new condition types first
+                if (!string.IsNullOrEmpty(condition.type))
+                {
+                    var type = condition.type.ToLower();
+                    if (type == "variablecompare" || type == "boolistrue" || type == "boolisfalse")
+                    {
+                        return EvaluateNewCondition(condition);
+                    }
+                }
 
                 var conditionType = ConditionParser.ParseConditionType(condition.type);
 
@@ -35,16 +45,95 @@ namespace RuntimeFSM.Utils
                     case ConditionType.Logical:
                         return EvaluateLogicalCondition(condition);
 
+                    case ConditionType.New:
+                        return EvaluateNewCondition(condition);
+
                     default:
-                        ConditionEvaluatorErrorHandler.LogInvalidConditionStructure($"Tipo de condición desconocido: {condition.type}", gameObject);
+                        ConditionEvaluatorErrorHandler.LogInvalidConditionStructure($"Unknown condition type: {condition.type}", gameObject);
                         return false;
                 }
             }
             catch (System.Exception ex)
             {
                 ConditionEvaluatorErrorHandler.LogEvaluationException(condition?.name ?? "Unknown", ex, gameObject);
-                return false; // Fallar de forma segura
+                return false;
             }
+        }
+
+        /// <summary>
+        /// Evaluates new condition types: VariableCompare, BoolIsTrue, BoolIsFalse
+        /// </summary>
+        private bool EvaluateNewCondition(ConditionDefinition condition)
+        {
+            if (condition.@params == null)
+            {
+                ConditionEvaluatorErrorHandler.LogInvalidConditionStructure($"Condition type '{condition.type}' missing params", gameObject);
+                return false;
+            }
+
+            var type = condition.type.ToLower();
+
+            switch (type)
+            {
+                case "variablecompare":
+                    return EvaluateVariableCompare(condition);
+
+                case "boolistrue":
+                    return EvaluateBoolIsTrue(condition);
+
+                case "boolisfalse":
+                    return EvaluateBoolIsFalse(condition);
+
+                default:
+                    ConditionEvaluatorErrorHandler.LogInvalidConditionStructure($"Unknown new condition type: {condition.type}", gameObject);
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Evaluates VariableCompare condition
+        /// </summary>
+        protected virtual bool EvaluateVariableCompare(ConditionDefinition condition)
+        {
+            var variableName = condition.@params.variableName;
+            var operatorStr = condition.@params.@operator;
+            var targetValue = condition.@params.value;
+
+            return EvaluateSimpleCondition(new ConditionDefinition
+            {
+                name = variableName,
+                @operator = operatorStr,
+                value = targetValue
+            });
+        }
+
+        /// <summary>
+        /// Evaluates BoolIsTrue condition
+        /// </summary>
+        protected virtual bool EvaluateBoolIsTrue(ConditionDefinition condition)
+        {
+            var variableName = condition.@params.variableName;
+            float value = GetBoolVariableValue(variableName) ? 1f : 0f;
+            return value > 0.5f;
+        }
+
+        /// <summary>
+        /// Evaluates BoolIsFalse condition
+        /// </summary>
+        protected virtual bool EvaluateBoolIsFalse(ConditionDefinition condition)
+        {
+            var variableName = condition.@params.variableName;
+            float value = GetBoolVariableValue(variableName) ? 1f : 0f;
+            return value < 0.5f;
+        }
+
+        /// <summary>
+        /// Gets a boolean variable value. Override in subclasses.
+        /// </summary>
+        protected virtual bool GetBoolVariableValue(string variableName)
+        {
+            // Default implementation - subclasses should override
+            throw new System.NotImplementedException($"GetBoolVariableValue not implemented for '{variableName}'");
         }
 
         /// <summary>
